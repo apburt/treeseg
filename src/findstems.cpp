@@ -15,16 +15,33 @@ int main (int argc, char *argv[])
 	//
 	std::cout << "Reading slice: " << std::flush;
 	pcl::PointCloud<pcl::PointXYZ>::Ptr slice(new pcl::PointCloud<pcl::PointXYZ>);
-	reader.read(argv[4],*slice);
+	reader.read(argv[5],*slice);
 	std::cout << "complete" << std::endl;
+	//
+	std::cout << "Cluster extraction: " << std::flush;
+	std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> clusters;
+	int nnearest = 18;
+	int nmin = 100;
+	std::vector<float> nndata = dNN(slice,nnearest);
+	euclideanClustering(slice,nndata[0],nmin,clusters);
+	ss.str("");
+	ss << "slice_clusters.pcd";
+	writeClouds(clusters,ss.str(),false);
+	std::cout << ss.str() << " | " << clusters.size() << std::endl;
 	//
 	std::cout << "Region-based segmentation: " << std::flush;
 	std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> regions;
-	float nnearest = 9;
-	float nmin = 100;
+	nnearest = 9;
+	nmin = 100;
 	float smoothness = atof(argv[1]);
-	regionSegmentation(slice,nnearest,nmin,smoothness,regions);
-	ss << "slice_regions.pcd";
+	for(int i=0;i<clusters.size();i++)
+	{
+		std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> tmpregions;
+		regionSegmentation(clusters[i],nnearest,nmin,smoothness,tmpregions);
+		for(int j=0;j<tmpregions.size();j++) regions.push_back(tmpregions[j]);
+	}
+	ss.str("");
+	ss << "slice_clusters_regions.pcd";
 	writeClouds(regions,ss.str(),false);
 	std::cout << ss.str() << " | " << regions.size() << std::endl;
 	//
@@ -33,6 +50,23 @@ int main (int argc, char *argv[])
 	nnearest = 60;
 	float dmin = atof(argv[2]);
 	float dmax = atof(argv[3]);
+	std::ifstream coordfile;
+	coordfile.open(argv[4]);
+	float coords[4];
+	int n = 0;
+	if(coordfile.is_open())
+	{
+		while(!coordfile.eof())
+		{
+			coordfile >> coords[n];
+			n++;
+		}
+	}
+	coordfile.close();
+	float xmin = coords[0];
+	float xmax = coords[1];
+	float ymin = coords[2];
+	float ymax = coords[3];
 	float lmin = 2.25; //assuming 3m slice
 	float stepcovmax = 0.2;
 	float radratiomin = 0.8;
@@ -46,13 +80,19 @@ int main (int argc, char *argv[])
 			{
 				if(cyl.stepcov <= stepcovmax && cyl.radratio > radratiomin)
 				{
-					cyls.push_back(cyl.inliers);
+					if(cyl.x >= xmin && cyl.x <= xmax)
+					{
+						if(cyl.y >= ymin && cyl.y <= ymax)
+						{
+							cyls.push_back(cyl.inliers);
+						}
+					}
 				}
 			}
 		}
 	}
 	ss.str("");
-	ss << "slice_regions_cylinders.pcd";
+	ss << "slice_clusters_regions_cylinders.pcd";
 	writeClouds(cyls,ss.str(),false);
 	std::cout << ss.str() << " | " << cyls.size() << std::endl;
 	//
@@ -74,7 +114,7 @@ int main (int argc, char *argv[])
 	std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pca;
         for(int k=0;k<idx.size();k++) pca.push_back(cyls[idx[k]]);	
 	ss.str("");
-	ss << "slice_regions_cylinders_principal.pcd";
+	ss << "slice_clusters_regions_cylinders_principal.pcd";
 	writeClouds(pca,ss.str(),false);
 	std::cout << ss.str() << " | " << pca.size() << std::endl;
 	//
@@ -84,7 +124,7 @@ int main (int argc, char *argv[])
 	stems = pca;
 	catIntersectingClouds(stems);
 	ss.str("");
-	ss << "slice_regions_cylinder_principal_cat.pcd";
+	ss << "slice_clusters_regions_cylinders_principal_cat.pcd";
 	writeClouds(stems,ss.str(),false);
 	for(int m=0;m<stems.size();m++)
 	{

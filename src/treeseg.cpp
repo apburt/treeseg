@@ -47,16 +47,16 @@
 
 std::vector<std::string> getFileID(char *fname)
 {
-	//Assumes ../DIR/PLOT_ID.XXX.PCD
+	//Assuming ../DIR/PLOT_ID.XXX.PCD
 	std::string tmp(fname);
 	std::string plotid,treeid;
 	std::vector<std::string> info;
 	std::vector<std::string> tmp1,tmp2,tmp3; 
 	boost::split(tmp1,tmp,boost::is_any_of("/"));
-	boost::split(tmp2,tmp1[tmp1.size()-1],boost::is_any_of("_"));
-	boost::split(tmp3,tmp2[tmp2.size()-1],boost::is_any_of("."));
-	plotid = tmp2[0];
-	treeid = tmp3[0];
+	boost::split(tmp2,tmp1[tmp1.size()-1],boost::is_any_of("."));
+	boost::split(tmp3,tmp2[0],boost::is_any_of("_"));	
+	plotid = tmp3[0];
+	treeid = tmp3[1];
 	info.push_back(treeid);
 	info.push_back(plotid);
 	return info;
@@ -136,19 +136,41 @@ void extractIndices(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, pcl::PointIndice
 	extract.filter(*filtered);
 }
 
-int findClosestIdx(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds)
+int findClosestIdx(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds, bool biggest)
 {
 	int idx = 0;
-	float dist = std::numeric_limits<float>::infinity();
+	std::vector<std::vector<float>> data;
 	for(int i=0;i<clouds.size();i++)
 	{
 		float d;
 		if(cloud->points.size() > clouds[i]->points.size()) d = minDistBetweenClouds(cloud,clouds[i]);
 		else d = minDistBetweenClouds(clouds[i],cloud);
-		if(d < dist)
+		std::vector<float> tmp;
+		tmp.push_back(d);
+		tmp.push_back(clouds[i]->points.size());
+		data.push_back(tmp);
+	}
+	float mindist = std::numeric_limits<float>::infinity();
+	for(int j=0;j<data.size();j++)
+	{
+		if(data[j][0] < mindist)
 		{
-			dist = d;
-			idx= i;
+			mindist = data[j][0];
+			idx = j;
+		}
+	}
+	if(biggest == true)
+	{		
+		float tolerance = 1;
+		mindist = mindist + (1.0 * tolerance);
+		int size = 0;
+		for(int k=0;k<data.size();k++)
+		{
+			if(data[k][0] < mindist && int(data[k][1]) > size)
+			{
+				size = int(data[k][1]);
+				idx = k;
+			}
 		}
 	}
 	return idx;
@@ -553,8 +575,11 @@ void correctStem(pcl::PointCloud<pcl::PointXYZ>::Ptr &stem, float nnearest, floa
 		{
 			pcl::PointCloud<pcl::PointXYZ>::Ptr zslice(new pcl::PointCloud<pcl::PointXYZ>);	
 			spatial1DFilter(slice,"z",z+i*dz,z+(i+1)*dz,zslice);
-			std::vector<float> zcircle = fitCircle(zslice,nnearest);
-			zrad.push_back(zcircle[2]);
+			if(zslice->points.size() > 10)
+			{
+				std::vector<float> zcircle = fitCircle(zslice,nnearest);
+				zrad.push_back(zcircle[2]);
+			}
 		}
 		float sum = std::accumulate(zrad.begin(),zrad.end(),0.0);
 		float mean = sum/zrad.size();
@@ -566,13 +591,13 @@ void correctStem(pcl::PointCloud<pcl::PointXYZ>::Ptr &stem, float nnearest, floa
 		//std::cout << circle[2] << " " << mean << " " << cov << " " << radchange << std::endl;
 		if(cov > stepcovmax || radchange < radchangemin)
 		{
-			zstop = z-zstep;
+			zstop = z-zstep*1.5;
 			broken = true;
 			break;
 		}
 	}
 	if(broken == false) spatial1DFilter(stem,"z",min[2],zstop,corrected);
-	else spatial1DFilter(stem,"z",min[2],max[2]-zstep*2,corrected);
+	else spatial1DFilter(stem,"z",min[2],max[2]-zstep,corrected);
 }
 
 float getDBH(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int nnearest, float zstep, float diffmax)

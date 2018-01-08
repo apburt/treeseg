@@ -60,7 +60,7 @@ float minDistBetweenClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr &a, pcl::PointClo
 void downsample(pcl::PointCloud<pcl::PointXYZ>::Ptr &original, float edgelength, pcl::PointCloud<pcl::PointXYZ>::Ptr &filtered);
 
 void extractIndices(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, pcl::PointIndices::Ptr &inliers, bool invert, pcl::PointCloud<pcl::PointXYZ>::Ptr filtered);
-int findClosestIdx(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds);
+int findClosestIdx(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds, bool biggest);
 
 void spatial1DFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr &original, std::string dimension, float min, float max, pcl::PointCloud<pcl::PointXYZ>::Ptr &filtered);
 void spatial3DCylinderFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr &original, cylinder cyl, pcl::PointCloud<pcl::PointXYZ>::Ptr &filtered);

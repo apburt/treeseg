@@ -6,10 +6,10 @@ Extract individual trees from lidar point clouds
 
 ## Overview
 
-*treeseg* has been developed to near-automatically extract tree-level point clouds from high-density plot-level lidar point clouds acquired in forested scenes.
+*treeseg* has been developed to near-automatically extract tree-level point clouds from high-density larger-area lidar point clouds acquired in forested scenes.
 A full description of the methods can be found here: http://discovery.ucl.ac.uk/1575534/ (pp. 96-167)
 
-Briefly, libtreeseg provides a set of generic functions that have been wrapped here into a series of executables to: i) identify individual stems in the plot-level point cloud (findstems), ii) extract each of these identified stems up to the first order of branching (segmentstems), and iii) segment each individual crown from neighbouring vegetation (isolatecrown).
+Briefly, libtreeseg provides a set of generic functions that have been wrapped here into a series of executables to: i) identify individual stems in the larger-area point cloud (findstems), ii) extract each of these identified stems up to the first order of branching (segmentstem), and iii) segment each individual crown from neighbouring vegetation (segmentcrown).
 
 ## Prerequisites
 
@@ -22,7 +22,7 @@ yum install cmake
 yum install pcl pcl-devel pcl-tools pcl-doc
 ```
 
-On macOS 10.13, dependencies are perhaps most easily installed via homebrew (https://brew.sh):
+On macOS 10.13, dependencies are perhaps most easily installed via *Homebrew* (https://brew.sh):
 
 ```
 brew install cmake
@@ -34,7 +34,7 @@ brew install pcl
 Install libtreeseg and the associated binaries as follows:
 
 ```
-git clone https://github.com/apburt/treeseg.git
+git clone https://github.com/apburt/treeseg.git;
 cd treeseg;
 mkdir build;
 cd build;
@@ -42,20 +42,21 @@ cmake ../src;
 make;
 ```
 
-Also included in *treeseg* is rxp2pcd, for conversion of REIGL V-Line scan data to .pcd binary format. Linux-only, this requires the RiVLIB headers and libraries (downloadable from: http://www.riegl.com/index.php?id=224) to be installed in /treeseg/include/riegl/ and /treeseg/lib/ respectively.
+Also included in *treeseg* is rxp2pcd, for conversion of REIGL V-Line scan data to .pcd binary format. Linux-only, this requires the *RiVLIB* headers and libraries (downloadable from: http://www.riegl.com/index.php?id=224) to be installed in /treeseg/include/riegl/ and /treeseg/lib/ respectively.
 
 ## Usage
 
-Below is an example usage of the treeseg binaries:
+Below is an example usage of the *treeseg* binaries:
 
+* plotcoords ../matrix/ > nouragesH20_coords.dat
 * rxp2pcd ../ nouraguesH20_coords.dat 60 15 nouraguesH20
 * nearestneighbour 1 4 nouraguesH20.sample.pcd > nouraguesH20_nn.dat
-* downsample 0.04 nouraguesH20_*.pcd
+* downsample 0.04 1 nouraguesH20_*.pcd
 * getdemslice 2 3 6 nouraguesH20_*.downsample.pcd
-* findstems 15 0.2 2 ../nouraguesH20.slice.downsample.pcd
-* segmentstems 12 ../nouraguesH20.downsample.pcd ../clusters/cluster_*.pcd
-* getcrownvolume 90 ../nouraguesH20_*.downsample.pcd ../stems/stem_*.pcd
-* isolatetree 50 30 [14 - 16] 1 ../volume_*.pcd
+* findstems 15 0.2 2 ../nouraguesH20_coords.dat ../nouraguesH20.slice.downsample.pcd
+* segmentstem 12.5 ../nouraguesH20.downsample.pcd ../clusters/cluster_*.pcd
+* getcrownvolume ../nouraguesH20.downsample.pcd ../stems/stem_*.pcd
+* segmentcrown [14 - 16] ../volume_*.pcd
 
 ## Authors
 

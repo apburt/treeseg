@@ -30,6 +30,7 @@ int main(int argc, char* argv[])
 		int nnearest = 60;
 		cylinder cyl;
 		fitCylinder(foundstem,nnearest,false,false,cyl);
+		if(cyl.rad < 0.2) cyl.rad = 0.2;
 		std::cout << cyl.rad << std::endl;	
 		//
 		std::cout << "Segmenting extended cylinder: " << std::flush;
@@ -47,7 +48,7 @@ int main(int argc, char* argv[])
 		pcl::PointCloud<pcl::PointXYZ>::Ptr top(new pcl::PointCloud<pcl::PointXYZ>);
 		pcl::PointCloud<pcl::PointXYZ>::Ptr vnoground(new pcl::PointCloud<pcl::PointXYZ>);
 		pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
-		float zdelta = 0.75;
+		float zdelta = 0.25;
 		Eigen::Vector4f min, max;
 		pcl::getMinMax3D(*volume,min,max);
 		spatial1DFilter(volume,"z",min[2],min[2]+zdelta,bottom);
@@ -62,7 +63,7 @@ int main(int argc, char* argv[])
 		//
 		std::cout << "Euclidean clustering: " << std::flush;
 		std::vector<std::vector<float>> nndata;
-		nndata = dNNz(vnoground,5,2);
+		nndata = dNNz(vnoground,9,2);
 		float nnmin = std::numeric_limits<int>().max();
 		float nnmax = 0;
 		for(int i=0;i<nndata.size();i++)
@@ -80,7 +81,7 @@ int main(int argc, char* argv[])
 		std::cout << ss.str() << std::endl;
 		//
 		std::cout << "Region-based segmentation: " << std::flush; 
-		int idx = findClosestIdx(foundstem,clusters);
+		int idx = findClosestIdx(foundstem,clusters,true);
 		std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> regions;
 		nnearest = 50;
 		int nmin = 3;
@@ -93,7 +94,7 @@ int main(int argc, char* argv[])
 		//
 		std::cout << "Correcting stem: " << std::flush;
 		pcl::PointCloud<pcl::PointXYZ>::Ptr stem(new pcl::PointCloud<pcl::PointXYZ>);
-		idx = findClosestIdx(foundstem,regions);
+		idx = findClosestIdx(foundstem,regions,true);
 		nnearest = 60;
 		zdelta = 0.75;
 		float zstart = 5;
