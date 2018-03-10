@@ -4,8 +4,9 @@ project(treeseg)
 set(CMAKE_CXX_FLAGS "-std=c++0x")
 
 find_package(PCL 1.7 REQUIRED)
+find_package(Armadillo REQUIRED)
 
-include_directories(${PCL_INCLUDE_DIRS} ../include)
+include_directories(${PCL_INCLUDE_DIRS} ${ARMADILLO_INCLUDE_DIRS} ../include)
 link_directories(../lib)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -21,6 +22,9 @@ endif()
 
 add_library(treeseg SHARED treeseg.cpp)
 target_link_libraries(treeseg ${PCL_LIBRARIES})
+
+add_library(leafsep SHARED leafsep.cpp)
+target_link_libraries(leafsep treeseg ${PCL_LIBRARIES} ${ARMADILLO_LIBRARIES})
 
 add_executable(nearestneighbour nearestneighbour.cpp)
 target_link_libraries(nearestneighbour treeseg ${PCL_LIBRARIES})
@@ -41,10 +45,13 @@ add_executable(getcrownvolume getcrownvolume.cpp)
 target_link_libraries(getcrownvolume treeseg ${PCL_LIBRARIES})
 
 add_executable(segmentcrown segmentcrown.cpp)
-target_link_libraries(segmentcrown treeseg ${PCL_LIBRARIES})
+target_link_libraries(segmentcrown treeseg leafsep ${PCL_LIBRARIES})
 
 add_executable(xyz2pcd xyz2pcd.cpp)
 target_link_libraries(xyz2pcd ${PCL_LIBRARIES})
 
 add_executable(pcd2xyz pcd2xyz.cpp)
 target_link_libraries(pcd2xyz ${PCL_LIBRARIES})
+
+add_executable(sepwoodleaf sepwoodleaf.cpp)
+target_link_libraries(sepwoodleaf treeseg leafsep ${PCL_LIBRARIES})

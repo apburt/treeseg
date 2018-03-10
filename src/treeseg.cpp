@@ -3,7 +3,7 @@
 *
 * MIT License
 *
-* Copyright 2017 Andrew Burt - a.burt@ucl.ac.uk
+* Copyright 2017-2018 Andrew Burt - a.burt@ucl.ac.uk
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to
@@ -23,6 +23,9 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 * IN THE SOFTWARE.
 */
+
+// treeseg has been developed using:
+// Point Cloud Library (http://www.pointclouds.org)
 
 #include "treeseg.h"
 
@@ -94,6 +97,26 @@ std::vector<float> dNN(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int nnearest)
 	results.push_back(dist_mean);
 	results.push_back(stddev);
 	return results;
+}
+
+std::vector<std::vector<int>> nNearestIdx(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int nnearest)
+{
+	std::vector<std::vector<int>> nidx;
+	pcl::KdTreeFLANN<pcl::PointXYZ> tree;
+        tree.setInputCloud(cloud);
+	int k = nnearest + 1;
+	for(pcl::PointCloud<pcl::PointXYZ>::iterator it=cloud->begin();it!=cloud->end();it++)
+	{
+		pcl::PointXYZ searchPoint;
+                searchPoint.x = it->x;
+                searchPoint.y = it->y;
+                searchPoint.z = it->z;
+		std::vector<int> pointIdxNKNSearch(k);
+		std::vector<float> pointNKNSquaredDistance(k);
+                tree.nearestKSearch(searchPoint,k,pointIdxNKNSearch,pointNKNSquaredDistance);
+		nidx.push_back(pointIdxNKNSearch);	
+	}
+	return nidx;
 }
 
 float minDistBetweenClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr &a, pcl::PointCloud<pcl::PointXYZ>::Ptr &b)
@@ -694,6 +717,44 @@ float interpolatedNNZ(float x, std::vector<std::vector<float>> nndata, bool extr
 	}
 	double dydx = ( yR - yL ) / ( xR - xL );
 	return yL + dydx * ( x - xL );
+}
+
+void removeFarRegions(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clusters)
+{
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+	for(int i=0;i<clusters.size();i++) *cloud += *clusters[i];
+	Eigen::Vector4f min,max;
+	pcl::getMinMax3D(*cloud,min,max);
+	float xm = (max[0] + min[0]) / 2;
+	float ym = (max[1] + min[1]) / 2;
+	std::vector<float> zloc(clusters.size());
+	for(int i=0;i<clusters.size();i++)
+	{
+		Eigen::Vector4f cmin,cmax;
+		pcl::getMinMax3D(*clusters[i],cmin,cmax);
+		zloc[i] = cmin[2];
+	}
+	std::vector<float> tmp = zloc;
+	std::sort(tmp.begin(),tmp.end());
+	int pos = static_cast<int>(static_cast<float>(clusters.size()) * 0.1);
+	float zmax = tmp[pos]; 
+	std::vector<int> remove_list;
+	for(int i=0;i<clusters.size();i++)
+	{
+		if(zloc[i] < zmax)
+		{
+			pcl::PointCloud<pcl::PointXYZ>::Ptr zslice(new pcl::PointCloud<pcl::PointXYZ>);
+			spatial1DFilter(clusters[i],"z",-10000000,zmax,zslice);
+			Eigen::Vector4f smin,smax;
+			pcl::getMinMax3D(*zslice,smin,smax);
+			float sxm = (smax[0] + smin[0]) / 2;
+			float sym = (smax[1] + smin[1]) / 2;
+			float d = sqrt(pow((sxm-xm),2) + pow((sym-ym),2));
+			if(d > 0.5) remove_list.push_back(i);
+		}
+	}
+	std::sort(remove_list.begin(),remove_list.end(),std::greater<int>());
+	for(int k=0;k<remove_list.size();k++) clusters.erase(clusters.begin()+remove_list[k]);
 }
 
 void buildTree(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clusters, pcl::PointCloud<pcl::PointXYZ>::Ptr &tree)

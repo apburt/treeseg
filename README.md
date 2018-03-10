@@ -11,15 +11,22 @@ A full description of the methods can be found here: http://discovery.ucl.ac.uk/
 
 Briefly, libtreeseg provides a set of generic functions that have been wrapped here into a series of executables to: i) identify individual stems in the larger-area point cloud (findstems), ii) extract each of these identified stems up to the first order of branching (segmentstem), and iii) segment each individual crown from neighbouring vegetation (segmentcrown).
 
+Integrated into *treeseg* is libleafsep, a library providing methods to separate wood and leaf returns in unorganised point clouds. 
+libleafsep is a modified translation of TLSeparation (https://github.com/TLSeparation).
+
 ## Prerequisites
 
-*treeseg* has been developed using the Point Cloud Library (PCL) (http://pointclouds.org).
+*treeseg* has been developed using:
+
+Point Cloud Library (PCL) (http://pointclouds.org)
+Armadillo (http://arma.sourceforge.net)
 
 On RHEL 7, these dependencies can be installed via:
 
 ```
 yum install cmake
 yum install pcl pcl-devel pcl-tools pcl-doc
+yum install armadillo armadillo-devel
 ```
 
 On macOS 10.13, dependencies are perhaps most easily installed via *Homebrew* (https://brew.sh):
@@ -27,6 +34,7 @@ On macOS 10.13, dependencies are perhaps most easily installed via *Homebrew* (h
 ```
 brew install cmake
 brew install pcl
+brew install armadillo
 ```
 
 ## Installation
@@ -63,6 +71,7 @@ Below is an example usage of the *treeseg* binaries:
 * **Andrew Burt**
 * **Mathias Disney**
 * **Kim Calders**
+* **Matheus Boni Vicari**
 
 ## License
 
@@ -70,4 +79,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgements
 
+* *treeseg* makes use of the Point Cloud Library (PCL) (http://pointclouds.org) and Armadillo (http://arma.sourceforge.net).
 * AB was supported by NERC CASE PhD NE/J016926/1 with EADS Astrium; additional funding was via the NERC National Centre for Earth Observation (NCEO), NERC funding awards NE/N00373X/1, NE/P011780/1 and NE/K002554/1; MD is also supported by the EU Horizon2020 project (BACI project funded by the EU's Horizon 2020 Research and Innovation Programme under grant agreement 640176).

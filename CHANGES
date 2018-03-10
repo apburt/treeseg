@@ -1,2 +1,7 @@
-1.0 2017-12-10
+1.0.0 2017-12-10
 	Initial release
+1.0.1 2018-01-08
+	Bug fixes
+1.1.1 2018-03-10
+	Added libleafsep for separating wood and leaf returns
+	segmentcrown performance fix

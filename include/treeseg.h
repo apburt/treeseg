@@ -3,7 +3,7 @@
 *
 * MIT License
 *
-* Copyright 2017 Andrew Burt - a.burt@ucl.ac.uk
+* Copyright 2017-2018 Andrew Burt - a.burt@ucl.ac.uk
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to
@@ -23,6 +23,9 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 * IN THE SOFTWARE.
 */
+
+// leafsep has been developed using:
+// Point Cloud Library (http://www.pointclouds.org)
 
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
@@ -91,4 +94,5 @@ bool sortCol(const std::vector<int>& v1, const std::vector<int>& v2);
 int findPrincipalCloudIdx(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds);
 
 float interpolatedNNZ(float x, std::vector<std::vector<float>> nndata, bool extrapolate);
+void removeFarRegions(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clusters);
 void buildTree(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clusters, pcl::PointCloud<pcl::PointXYZ>::Ptr &tree);
