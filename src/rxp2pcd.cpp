@@ -208,7 +208,6 @@ int main(int argc,char** argv)
 								xyzfiles[n].write(reinterpret_cast<const char*>(&X),sizeof(X));
 								xyzfiles[n].write(reinterpret_cast<const char*>(&Y),sizeof(Y));
 								xyzfiles[n].write(reinterpret_cast<const char*>(&Z),sizeof(Z));
-							xyzfiles[n].write(reinterpret_cast<const char*>(&pc.reflectance[n]),sizeof(pc.reflectance[n]));
 								count[n] += 1;
 							}
 						}
