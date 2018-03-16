@@ -5,7 +5,7 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/common.h>
 
-#include <Armadillo>
+#include <armadillo>
 
 #include "treeseg.h"
 #include "leafsep.h"
