@@ -16,10 +16,12 @@ int main (int argc, char *argv[])
 	std::stringstream ss;
 	for(int i=3;i<argc;i++)
 	{
+		std::cout << "Reading plotcloud..." << std::endl;
 		reader.read(argv[i],*original);
 		if(catclouds == true)
 		{
 			pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
+			std::cout << "Downsampling plotcloud..." << std::endl;
 			downsample(original,edgelength,tmp);
 			*filtered += *tmp;
 			original->clear();
@@ -41,6 +43,7 @@ int main (int argc, char *argv[])
 		std::vector<std::string> id = getFileID(argv[3]);
 		ss.str("");
 		ss << id[1] << ".downsample.pcd";
+		std::cout << "Writing downsamples plotcloud..." << std::endl;
 		writer.write(ss.str(),*filtered,true);
 	}
 	return 0;
