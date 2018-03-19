@@ -19,6 +19,7 @@ int main (int argc, char *argv[])
 	pcl::PCDWriter writer;
 	std::cout << "Reading plotcloud..." << std::endl;
 	reader.read(argv[4],*plotcloud);
+	std::cout << "Finished reading plotcloud..." << std::endl;
 	std::vector<std::string> id = getFileID(argv[4]);
 	std::stringstream ss;
 	ss.str("");
