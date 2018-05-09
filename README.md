@@ -18,8 +18,8 @@ libleafsep is a modified translation of TLSeparation (https://github.com/TLSepar
 
 treeseg has been developed using:
 
-*Point Cloud Library (PCL) (http://pointclouds.org) (v1.7 or later)
-*Armadillo (http://arma.sourceforge.net) (v7.960 or later)
+* Point Cloud Library (PCL) (http://pointclouds.org) (v1.7 or later)
+* Armadillo (http://arma.sourceforge.net) (v7.960 or later)
 
 On RHEL 7, these dependencies can be installed via:
 
@@ -29,7 +29,15 @@ yum install pcl pcl-devel pcl-tools pcl-doc
 yum install armadillo armadillo-devel
 ```
 
-On macOS 10.13, dependencies are perhaps most easily installed via *Homebrew* (https://brew.sh):
+On Ubuntu:
+
+```
+apt-get install -y git cmake
+apt-get install -y libpcl-dev
+apt-get install -y libproj-dev
+```
+
+On macOS 10.13, dependencies are perhaps most easily installed via Homebrew (https://brew.sh):
 
 ```
 brew install cmake
@@ -50,11 +58,11 @@ cmake ../src;
 make;
 ```
 
-Also included in *treeseg* is rxp2pcd, for conversion of REIGL V-Line scan data to .pcd binary format. Linux-only, this requires the *RiVLIB* headers and libraries (downloadable from: http://www.riegl.com/index.php?id=224) to be installed in /treeseg/include/riegl/ and /treeseg/lib/ respectively.
+Also included in treeseg is rxp2pcd, for conversion of REIGL V-Line scan data to .pcd binary format. Linux-only, this requires the RiVLIB headers and libraries (downloadable from: http://www.riegl.com/index.php?id=224) to be installed in /treeseg/include/riegl/ and /treeseg/lib/ respectively.
 
 ## Usage
 
-Below is an example usage of the *treeseg* binaries:
+Below is an example usage of the treeseg binaries:
 
 * plotcoords ../matrix/ > nouragesH20_coords.dat
 * rxp2pcd ../ nouraguesH20_coords.dat 60 15 nouraguesH20
@@ -79,5 +87,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgements
 
-* *treeseg* makes use of the Point Cloud Library (PCL) (http://pointclouds.org) and Armadillo (http://arma.sourceforge.net).
+* treeseg makes use of the Point Cloud Library (PCL) (http://pointclouds.org) and Armadillo (http://arma.sourceforge.net).
 * AB was supported by NERC CASE PhD NE/J016926/1 with EADS Astrium; additional funding was via the NERC National Centre for Earth Observation (NCEO), NERC funding awards NE/N00373X/1, NE/P011780/1 and NE/K002554/1; MD is also supported by the EU Horizon2020 project (BACI project funded by the EU's Horizon 2020 Research and Innovation Programme under grant agreement 640176).
