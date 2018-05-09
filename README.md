@@ -6,20 +6,20 @@ Extract individual trees from lidar point clouds
 
 ## Overview
 
-*treeseg* has been developed to near-automatically extract tree-level point clouds from high-density larger-area lidar point clouds acquired in forested scenes.
+treeseg has been developed to near-automatically extract tree-level point clouds from high-density larger-area lidar point clouds acquired in forested scenes.
 A full description of the methods can be found here: http://discovery.ucl.ac.uk/1575534/ (pp. 96-167)
 
 Briefly, libtreeseg provides a set of generic functions that have been wrapped here into a series of executables to: i) identify individual stems in the larger-area point cloud (findstems), ii) extract each of these identified stems up to the first order of branching (segmentstem), and iii) segment each individual crown from neighbouring vegetation (segmentcrown).
 
-Integrated into *treeseg* is libleafsep, a library providing methods to separate wood and leaf returns in unorganised point clouds. 
+Integrated into treeseg is libleafsep, a library providing methods to separate wood and leaf returns in unorganised point clouds. 
 libleafsep is a modified translation of TLSeparation (https://github.com/TLSeparation).
 
 ## Prerequisites
 
-*treeseg* has been developed using:
+treeseg has been developed using:
 
-Point Cloud Library (PCL) (http://pointclouds.org)
-Armadillo (http://arma.sourceforge.net)
+*Point Cloud Library (PCL) (http://pointclouds.org) (v1.7 or later)
+*Armadillo (http://arma.sourceforge.net) (v7.960 or later)
 
 On RHEL 7, these dependencies can be installed via:
 
