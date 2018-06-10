@@ -44,12 +44,12 @@ int main (int argc, char** argv)
 		int nnearest = 90;
 		float zstep = 0.75;
 		float diffmax = 0.1;
-		float dbh = getDBH(stem,nnearest,zstep,diffmax);
-		std::cout << dbh << std::endl;
+		treeparams params = getTreeParams(stem,nnearest,zstep,diffmax);
+		std::cout << params.d << std::endl;
 		//
 		std::cout << "Crown dimensions: " << std::flush;
-		float h = maxheight(dbh);
-		float c = maxcrown(dbh);
+		float h = maxheight(params.d);
+		float c = maxcrown(params.d);
 		std::cout << h << "m x " << c << "m (HxW)" << std::endl;
 		//
 		std::cout << "Segmenting volume: " << std::flush;

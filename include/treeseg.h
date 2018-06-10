@@ -45,9 +45,9 @@ struct cylinder
         pcl::PointCloud<pcl::PointXYZ>::Ptr inliers;
 };
 
-struct treeinfo
+struct treeparams
 {
-	float x,y,z;
+	float x,y;
 	float d;
 	float h;
 	float c;
@@ -88,7 +88,7 @@ void catIntersectingClouds(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clo
 
 void correctStem(pcl::PointCloud<pcl::PointXYZ>::Ptr &stem, float nnearest, float zstart, float zstep, float stepcovmax, float radchangemin, pcl::PointCloud<pcl::PointXYZ>::Ptr &corrected);
 
-float getDBH(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int nnearest, float zstep, float diffmax);
+treeparams getTreeParams(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int nnearest, float zstep, float diffmax);
 
 bool sortCol(const std::vector<int>& v1, const std::vector<int>& v2);
 int findPrincipalCloudIdx(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds);

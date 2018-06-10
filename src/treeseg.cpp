@@ -623,14 +623,14 @@ void correctStem(pcl::PointCloud<pcl::PointXYZ>::Ptr &stem, float nnearest, floa
 	else spatial1DFilter(stem,"z",min[2],max[2]-zstep,corrected);
 }
 
-float getDBH(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int nnearest, float zstep, float diffmax)
+treeparams getTreeParams(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int nnearest, float zstep, float diffmax)
 {       
+	treeparams params;
 	Eigen::Vector4f min,max;
 	pcl::getMinMax3D(*cloud,min,max);
 	float z = min[2] + 1.3;
-	float dbh;
-	bool stable = false;
 	int i=0;
+	bool stable = false;
 	while(stable == false)
 	{
 		if(z >= max[2]-zstep*1.5) break;
@@ -642,6 +642,15 @@ float getDBH(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int nnearest, float zst
 			spatial1DFilter(cloud,"z",z-zstep/2,z+zstep/2,slice);
 			spatial1DFilter(cloud,"z",z-zstep*1.5,z-zstep/2,bslice);
 			spatial1DFilter(cloud,"z",z+zstep/2,z+zstep*1.5,fslice);
+			if(i == 0)
+			{
+				Eigen::Vector4f smin,smax;
+				pcl::getMinMax3D(*slice,smin,smax);
+				params.x = (smax[0] + smin[0]) / 2;
+				params.y = (smax[1] + smin[1]) / 2;
+				params.h = max[2]-min[2];
+        			params.c = sqrt(pow(max[0]-min[0],2)+pow(max[1]-min[1],2));
+			}
 			cylinder cyl,bcyl,fcyl;
 			fitCylinder(slice,nnearest,false,true,cyl);
 			fitCylinder(bslice,nnearest,false,false,bcyl);
@@ -650,18 +659,16 @@ float getDBH(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int nnearest, float zst
 			float bdiff = fabs(cyl.rad - bcyl.rad) / cyl.rad;
 			float fdiff =  fabs(cyl.rad - fcyl.rad) / cyl.rad;
 			float diff = (bdiff + fdiff) / 2;
-			//std::cout << cyl.rad*2 << " " << bcyl.rad*2 << " " << fcyl.rad*2 << " " << d << " " << diff << std::endl;
-			if(i == 0) dbh = d;
 			if(cyl.ismodel == true && diff <= diffmax)
 			{
-				dbh = d;
+				params.d = d;
 				stable = true;
 			}
 		}
 		z += 0.1;
 		i++;
 	}
-	return dbh;
+	return params;
 }
 
 bool sortCol(const std::vector<int>& v1, const std::vector<int>& v2)
