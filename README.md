@@ -2,7 +2,7 @@
 
 Extract individual trees from lidar point clouds
 
-<img src="https://4xnnka.bl3302.livefilestore.com/y4mzpqPKgclbQKR51t4a9tA2v37IKMp221dDuLXHvRqQzc8szMleP7anmHxoy-bPwa-0qnDRrRpQkBhkO2P3cef-u7_eBpNubE_wO8FA5E0sDkbmPt0BIJoWT2upX_YFO5UfTS0ys0LZLHaSl0DktwdJIj82R4ZP051-2CiPzJAXJvht3eijlwfp0mo_W8VeXVa8p_g79_EEb51Kg0WGMWe8A?width=660&height=628&cropmode=none" width="500">
+<img src="https://uc29eba9c84346942ab6d5692c0c.dl.dropboxusercontent.com/cd/0/inline/AT7aCQhbtQfvkGE69lbUE85VfaFre44WKFPttrQ-d-_ilA6ul1tv709WGyyQdsDKn8PLjabcoYzfjzDGGduFejgbtjKrNysd17hZ6xAKFlU0AeqpMYZi_VQeIiB7ATHOUeSWlK3hNX9EMkbG5z_EWasaiBjq18RujHMkJ46Usn1dlT3OQWbG0-QFUSShSmFA_Ac/file" width="500">
 
 ## Overview
 
@@ -29,15 +29,15 @@ yum install pcl pcl-devel pcl-tools pcl-doc
 yum install armadillo armadillo-devel
 ```
 
-On Ubuntu:
+On Ubuntu 16.04:
 
 ```
-apt-get install -y git cmake
-apt-get install -y libpcl-dev
-apt-get install -y libproj-dev
+apt install git cmake
+apt install libpcl-dev
+apt install libarmadillo-dev
 ```
 
-On macOS 10.13, dependencies are perhaps most easily installed via Homebrew (https://brew.sh):
+On macOS 10.14, dependencies are perhaps most easily installed via Homebrew (https://brew.sh):
 
 ```
 brew install cmake
