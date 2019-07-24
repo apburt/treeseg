@@ -30,9 +30,10 @@ class importer : public scanlib::pointcloud
 	public:
 		importer(pcloud &pc) : scanlib::pointcloud(false), pc(pc){}
 	protected:
+		void on_echo_transformed(echo_type echo)
 		void on_shot_end()
 		{
-			for(int i=0;i<targets.size();i++)
+			for(int i=0;i<target_count;i++)
 			{
 				pc.x.push_back(targets[i].vertex[0]);
 				pc.y.push_back(targets[i].vertex[1]);
