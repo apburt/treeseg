@@ -30,7 +30,7 @@ class importer : public scanlib::pointcloud
 	public:
 		importer(pcloud &pc) : scanlib::pointcloud(false), pc(pc){}
 	protected:
-		void on_echo_transformed(echo_type echo)
+		//void on_echo_transformed(echo_type echo)
 		void on_shot_end()
 		{
 			for(int i=0;i<target_count;i++)
