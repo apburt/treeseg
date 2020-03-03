@@ -2,14 +2,14 @@
 
 Extract individual trees from lidar point clouds
 
-<img src="https://uc29eba9c84346942ab6d5692c0c.dl.dropboxusercontent.com/cd/0/inline/AT7aCQhbtQfvkGE69lbUE85VfaFre44WKFPttrQ-d-_ilA6ul1tv709WGyyQdsDKn8PLjabcoYzfjzDGGduFejgbtjKrNysd17hZ6xAKFlU0AeqpMYZi_VQeIiB7ATHOUeSWlK3hNX9EMkbG5z_EWasaiBjq18RujHMkJ46Usn1dlT3OQWbG0-QFUSShSmFA_Ac/file" width="500">
+<img src="https://drive.google.com/file/d/1oZNzTAbH80MxEywqH8y3RCZgzn3sbYsy/preview" width="500">
 
 ## Overview
 
-treeseg has been developed to near-automatically extract tree-level point clouds from high-density larger-area lidar point clouds acquired in forested scenes.
-A full description of the methods can be found here: http://discovery.ucl.ac.uk/1575534/ (pp. 96-167)
+treeseg has been developed to near-automatically extract tree-level point clouds from high-density larger-area lidar point clouds acquired in forests.
+A description of the methods can be found in our Methods in Ecology and Evolution applications paper available [here](https://besjournals.onlinelibrary.wiley.com/doi/abs/10.1111/2041-210X.13121)
 
-Briefly, libtreeseg provides a set of generic functions that have been wrapped here into a series of executables to: i) identify individual stems in the larger-area point cloud (findstems), ii) extract each of these identified stems up to the first order of branching (segmentstem), and iii) segment each individual crown from neighbouring vegetation (segmentcrown).
+Briefly, libtreeseg provides a set of generic functions that have been implemented into a series of executables to: i) identify individual stems in the larger-area point cloud (findstems), ii) extract each of these identified stems up to the first order of branching (segmentstem), and iii) segment each individual crown from neighbouring vegetation (segmentcrown).
 
 Integrated into treeseg is libleafsep, a library providing methods to separate wood and leaf returns in unorganised point clouds. 
 libleafsep is a modified translation of TLSeparation (https://github.com/TLSeparation).
@@ -18,31 +18,15 @@ libleafsep is a modified translation of TLSeparation (https://github.com/TLSepar
 
 treeseg has been developed using:
 
-* Point Cloud Library (PCL) (http://pointclouds.org) (v1.7 or later)
-* Armadillo (http://arma.sourceforge.net) (v7.960 or later)
+* Point Cloud Library (PCL) (http://pointclouds.org) (v1.9 or later)
+* Armadillo (http://arma.sourceforge.net) (v9.6 or later)
 
-On RHEL 7, these dependencies can be installed via:
-
-```
-yum install cmake
-yum install pcl pcl-devel pcl-tools pcl-doc
-yum install armadillo armadillo-devel
-```
-
-On Ubuntu 16.04:
+On Ubuntu 19.10, these dependencies can be installed via:
 
 ```
 apt install git cmake
 apt install libpcl-dev
 apt install libarmadillo-dev
-```
-
-On macOS 10.14, dependencies are perhaps most easily installed via Homebrew (https://brew.sh):
-
-```
-brew install cmake
-brew install pcl
-brew install armadillo
 ```
 
 ## Installation
@@ -58,7 +42,7 @@ cmake ../src;
 make;
 ```
 
-Also included in treeseg is rxp2pcd, for conversion of REIGL V-Line scan data to .pcd binary format. Linux-only, this requires the RiVLIB headers and libraries (downloadable from: http://www.riegl.com/index.php?id=224) to be installed in /treeseg/include/riegl/ and /treeseg/lib/ respectively.
+Also included in treeseg is rxp2pcd, for conversion of REIGL V-Line scan data to .pcd binary format. Compiling this executable requires RiVLIB headers and libraries to be placed in the /treeseg/include/riegl/ and /treeseg/lib/riegl/ directories respectively (these can be downloaded from the Members Area of the RIEGL website, e.g., RiVLIB 2.5.7 64bit Linux gcc55)
 
 ## Usage
 
@@ -88,4 +72,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgements
 
 * treeseg makes use of the Point Cloud Library (PCL) (http://pointclouds.org) and Armadillo (http://arma.sourceforge.net).
-* AB was supported by NERC CASE PhD NE/J016926/1 with EADS Astrium; additional funding was via the NERC National Centre for Earth Observation (NCEO), NERC funding awards NE/N00373X/1, NE/P011780/1 and NE/K002554/1; MD is also supported by the EU Horizon2020 project (BACI project funded by the EU's Horizon 2020 Research and Innovation Programme under grant agreement 640176).
