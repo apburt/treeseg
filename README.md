@@ -2,7 +2,7 @@
 
 Extract individual trees from lidar point clouds
 
-<img src="https://drive.google.com/file/d/1oZNzTAbH80MxEywqH8y3RCZgzn3sbYsy/preview" width="500">
+<img src="https://drive.google.com/uc?export=view&id=1oZNzTAbH80MxEywqH8y3RCZgzn3sbYsy" width="500">
 
 ## Overview
 
