@@ -35,11 +35,8 @@ Install libtreeseg and the associated binaries as follows:
 
 ```
 git clone https://github.com/apburt/treeseg.git;
-cd treeseg;
-mkdir build;
-cd build;
-cmake ../src;
-make;
+mkdir treeseg/build; cd treeseg/build;
+cmake ..; make;
 ```
 
 Also included in treeseg is rxp2pcd, for conversion of REIGL V-Line scan data to .pcd binary format. Compiling this executable requires RiVLIB headers and libraries to be placed in the /treeseg/include/riegl/ and /treeseg/lib/riegl/ directories respectively (these can be downloaded from the Members Area of the RIEGL website, e.g., RiVLIB 2.5.7 64bit Linux gcc55)
