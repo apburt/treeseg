@@ -1,10 +1,7 @@
 //Andrew Burt - a.burt@ucl.ac.uk
 
-#include <string>
 #include <sstream>
 #include <fstream>
-#include <cstdlib>
-#include <vector>
 #include <cmath>
 
 #include <dirent.h>
@@ -65,67 +62,53 @@ int main(int argc,char** argv)
 		}
 	}
 	cfile.close();
-	float x_min = coordfile[0]-25;
-	float x_max = coordfile[1]+25;
-	float y_min = coordfile[2]-25;
-	float y_max = coordfile[3]+25;
-	float area = atof(argv[3]);
-	int length = ceil((x_max-x_min)/sqrt(area)) * ceil((y_max-y_min)/sqrt(area)) + 1;
-	float coords[length][4];
-	int c = 0;
-	int count[length];
-	for(float x=x_min;x<x_max;x+=sqrt(area))
+	float plot_xmin = coordfile[0] - 10;
+	float plot_xmax = coordfile[1] + 10;
+	float plot_ymin = coordfile[2] - 10;
+	float plot_ymax = coordfile[3] + 10;
+	float tile_area = atof(argv[3]);
+	float tile_length = sqrt(tile_area);
+	int tile_count = 0;
+	for(float x=plot_xmin;x<plot_xmax;x+=tile_length)
 	{
-		for(float y=y_min;y<y_max;y+=sqrt(area))
+		for(float y=plot_ymin;y<plot_ymax;y+=tile_length) tile_count++;
+	}
+	float tile_coords[tile_count][4];
+	int tile_pointcount[tile_count];
+	int c = 0;
+	for(float x=plot_xmin;x<plot_xmax;x+=sqrt(tile_area))
+	{
+		for(float y=plot_ymin;y<plot_ymax;y+=sqrt(tile_area))
 		{
-			coords[c][0] = x;
-			coords[c][1] = x+sqrt(area);
-			coords[c][2] = y;
-			coords[c][3] = y+sqrt(area);
-			count[c] = 0;
+			tile_coords[c][0] = x;
+			tile_coords[c][1] = x+sqrt(tile_area);
+			tile_coords[c][2] = y;
+			tile_coords[c][3] = y+sqrt(tile_area);
 			c++;
 		}
 	}
-	coords[length-1][0] = (x_max + x_min) / 2 - 15;
-	coords[length-1][1] = (x_max + x_min) / 2 + 15;
-	coords[length-1][2] = (y_max + y_min) / 2 - 15;
-	coords[length-1][3] = (y_max + y_min) / 2 + 15;
-	count[length-1] = 0;
 	float deviation_max = atof(argv[4]);
 	std::string fname = argv[5];
 	std::stringstream ss;
-	std::ofstream xyzfiles[length];
-	std::string xyznames[length];
-	std::string pcdnames[length];
-	for(int j=0;j<length;j++)
+	std::ofstream xyzfiles[tile_count];
+	std::string xyznames[tile_count];
+	std::string pcdnames[tile_count];
+	for(int j=0;j<tile_count;j++)
 	{
-		if(j == length-1)
-		{
-			ss.str("");
-			ss << fname << ".sample.xyz";
-			xyzfiles[j].open(ss.str(),std::ios::binary);
-			xyznames[j] = ss.str();
-			ss.str("");
-			ss << fname << ".sample.pcd";
-			pcdnames[j] = ss.str();
-		}
-		else
-		{
-			ss.str("");
-			ss << fname << "_" << j << ".xyz";
-			xyzfiles[j].open(ss.str(),std::ios::binary);
-			xyznames[j] = ss.str();
-			ss.str("");
-			ss << fname << "_" << j << ".pcd";
-			pcdnames[j] = ss.str();
-		}
+		ss.str("");
+		ss << fname << ".tile." << j << ".xyz";
+		xyzfiles[j].open(ss.str(),std::ios::binary);
+		xyznames[j] = ss.str();
+		ss.str("");
+		ss << fname << ".tile." << j << ".pcd";
+		pcdnames[j] = ss.str();
 	}
 	std::vector<std::string> positions;
 	DIR *tdir = NULL;
 	tdir = opendir (top_dir.c_str());
 	struct dirent *tent = NULL;
 	while(tent = readdir(tdir)) positions.push_back(tent->d_name);
-	closedir(tdir);
+	closedir(tdir);	
 	for(int k=0;k<positions.size();k++)
 	{
 		if(positions[k][0] == 'S' && positions[k][4] == 'P')
@@ -145,7 +128,8 @@ int main(int argc,char** argv)
 			std::string rxpname;
 			for(int l=0;l<position_contents.size();l++)
 			{
-				if(position_contents[l][14] == 'r' && position_contents[l][15] == 'x' && position_contents[l][16] == 'p' && position_contents[l].length() == 17 )
+				if(position_contents[l][14] == 'r' && position_contents[l][15] == 'x' && position_contents[l][16] == 'p' && position_contents[l].length() == 17)
+				//if(position_contents[l][14] == 'm' && position_contents[l][15] == 'o' && position_contents[l][16] == 'n' && position_contents[l].length() == 21)
 				{
 					ss.str("");
 					ss << top_dir << positions[k] << "/" << position_contents[l];
@@ -198,18 +182,18 @@ int main(int argc,char** argv)
 				float X = ((pc.x[m]*pc.matrix[0])+(pc.y[m]*pc.matrix[1])+(pc.z[m]*pc.matrix[2]))+pc.matrix[3];
 				float Y = ((pc.x[m]*pc.matrix[4])+(pc.y[m]*pc.matrix[5])+(pc.z[m]*pc.matrix[6]))+pc.matrix[7];
 				float Z = ((pc.x[m]*pc.matrix[8])+(pc.y[m]*pc.matrix[9])+(pc.z[m]*pc.matrix[10]))+pc.matrix[11];
-				for(int n=0;n<length;n++)
+				for(int n=0;n<tile_count;n++)
 				{
-					if(X >= coords[n][0] && X < coords[n][1])
+					if(X >= tile_coords[n][0] && X < tile_coords[n][1])
 					{
-						if(Y >=coords[n][2] && Y < coords[n][3])
+						if(Y >= tile_coords[n][2] && Y < tile_coords[n][3])
 						{
 							if(pc.deviation[m] <= deviation_max)
 							{
 								xyzfiles[n].write(reinterpret_cast<const char*>(&X),sizeof(X));
 								xyzfiles[n].write(reinterpret_cast<const char*>(&Y),sizeof(Y));
 								xyzfiles[n].write(reinterpret_cast<const char*>(&Z),sizeof(Z));
-								count[n] += 1;
+								tile_pointcount[n] += 1;
 							}
 						}
 					}
@@ -217,14 +201,14 @@ int main(int argc,char** argv)
 			}
 		}
 	}
-	for(int p=0;p<length;p++)
+	for(int p=0;p<tile_count;p++)
 	{
 		xyzfiles[p].close();
 	}
-	for(int q=0;q<length;q++)
+	for(int q=0;q<tile_count;q++)
 	{
 		std::ofstream headerstream("header.tmp");
-		headerstream << "VERSION 0.7" << std::endl << "FIELDS x y z" << std::endl << "SIZE 4 4 4" << std::endl << "TYPE F F F" << std::endl << "COUNT 1 1 1" << std::endl << "WIDTH " << count[q] << std::endl << "HEIGHT 1" << std::endl << "VIEWPOINT 0 0 0 1 0 0 0" << std::endl << "POINTS " << count[q] << std::endl << "DATA binary" << std::endl;
+		headerstream << "VERSION 0.7" << std::endl << "FIELDS x y z" << std::endl << "SIZE 4 4 4" << std::endl << "TYPE F F F" << std::endl << "COUNT 1 1 1" << std::endl << "WIDTH " << tile_pointcount[q] << std::endl << "HEIGHT 1" << std::endl << "VIEWPOINT 0 0 0 1 0 0 0" << std::endl << "POINTS " << tile_pointcount[q] << std::endl << "DATA binary" << std::endl;
 		headerstream.close();
 		ss.str("");
 		ss << "cat header.tmp " << xyznames[q] << " > " << pcdnames[q] << "; rm header.tmp " << xyznames[q];

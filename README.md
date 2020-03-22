@@ -46,7 +46,7 @@ Also included in treeseg is rxp2pcd, for conversion of REIGL V-Line scan data to
 Below is an example usage of the treeseg binaries:
 
 * plotcoords ../matrix/ > nouragesH20_coords.dat
-* rxp2pcd ../ nouraguesH20_coords.dat 60 15 nouraguesH20
+* rxp2pcd ../ nouraguesH20_coords.dat 25 15 nouraguesH20
 * nearestneighbour 1 4 nouraguesH20.sample.pcd > nouraguesH20_nn.dat
 * downsample 0.04 1 nouraguesH20_*.pcd
 * getdemslice 2 3 6 nouraguesH20_*.downsample.pcd
