@@ -1,9 +1,8 @@
-
-#include <pcl/point_types.h>
-#include <pcl/point_cloud.h>
-#include <pcl/io/pcd_io.h>
+//Andrew Burt - a.burt@ucl.ac.uk
 
 #include "treeseg.h"
+
+#include <pcl/io/pcd_io.h>
 
 int main (int argc, char *argv[])
 {
@@ -11,15 +10,15 @@ int main (int argc, char *argv[])
 	bool catclouds = atoi(argv[2]);
 	pcl::PCDReader reader;
 	pcl::PCDWriter writer;
-	pcl::PointCloud<pcl::PointXYZ>::Ptr original(new pcl::PointCloud<pcl::PointXYZ>);
-	pcl::PointCloud<pcl::PointXYZ>::Ptr filtered(new pcl::PointCloud<pcl::PointXYZ>);
+	pcl::PointCloud<PointTreeseg>::Ptr original(new pcl::PointCloud<PointTreeseg>);
+	pcl::PointCloud<PointTreeseg>::Ptr filtered(new pcl::PointCloud<PointTreeseg>);
 	std::stringstream ss;
 	for(int i=3;i<argc;i++)
 	{
 		reader.read(argv[i],*original);
 		if(catclouds == true)
 		{
-			pcl::PointCloud<pcl::PointXYZ>::Ptr tmp(new pcl::PointCloud<pcl::PointXYZ>);
+			pcl::PointCloud<PointTreeseg>::Ptr tmp(new pcl::PointCloud<PointTreeseg>);
 			downsample(original,edgelength,tmp);
 			*filtered += *tmp;
 			original->clear();

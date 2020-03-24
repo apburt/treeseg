@@ -1,11 +1,9 @@
 //Andrew Burt - a.burt@ucl.ac.uk
 
-#include <pcl/point_types.h>
-#include <pcl/point_cloud.h>
+#include "treeseg.h"
+
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/common.h>
-
-#include "treeseg.h"
 
 int main (int argc, char *argv[])
 {
@@ -14,12 +12,12 @@ int main (int argc, char *argv[])
 	std::stringstream ss;
 	//
 	std::cout << "Reading slice: " << std::flush;
-	pcl::PointCloud<pcl::PointXYZ>::Ptr slice(new pcl::PointCloud<pcl::PointXYZ>);
+	pcl::PointCloud<PointTreeseg>::Ptr slice(new pcl::PointCloud<PointTreeseg>);
 	reader.read(argv[5],*slice);
 	std::cout << "complete" << std::endl;
 	//
 	std::cout << "Cluster extraction: " << std::flush;
-	std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> clusters;
+	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> clusters;
 	int nnearest = 18;
 	int nmin = 100;
 	std::vector<float> nndata = dNN(slice,nnearest);
@@ -30,13 +28,13 @@ int main (int argc, char *argv[])
 	std::cout << ss.str() << " | " << clusters.size() << std::endl;
 	//
 	std::cout << "Region-based segmentation: " << std::flush;
-	std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> regions;
+	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> regions;
 	nnearest = 9;
 	nmin = 100;
 	float smoothness = atof(argv[1]);
 	for(int i=0;i<clusters.size();i++)
 	{
-		std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> tmpregions;
+		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> tmpregions;
 		regionSegmentation(clusters[i],nnearest,nmin,smoothness,tmpregions);
 		for(int j=0;j<tmpregions.size();j++) regions.push_back(tmpregions[j]);
 	}
@@ -46,7 +44,7 @@ int main (int argc, char *argv[])
 	std::cout << ss.str() << " | " << regions.size() << std::endl;
 	//
 	std::cout << "RANSAC cylinder fits: " << std::flush;
-	std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cyls;
+	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> cyls;
 	nnearest = 60;
 	float dmin = atof(argv[2]);
 	float dmax = atof(argv[3]);
@@ -111,7 +109,7 @@ int main (int argc, char *argv[])
 		float angle = pcl::getAngle3D(gvector,cvector) * (180/M_PI);
 		if(angle >= (90 - anglemax) || angle <= (90 + anglemax)) idx.push_back(j);
 	}
-	std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> pca;
+	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> pca;
         for(int k=0;k<idx.size();k++) pca.push_back(cyls[idx[k]]);	
 	ss.str("");
 	ss << "slice_clusters_regions_cylinders_principal.pcd";
@@ -120,7 +118,7 @@ int main (int argc, char *argv[])
 	//
 	std::cout << "Concatenating stems: " << std::flush;
 	float expansionfactor = 0;
-	std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> stems;
+	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> stems;
 	stems = pca;
 	catIntersectingClouds(stems);
 	ss.str("");

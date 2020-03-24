@@ -1,14 +1,10 @@
 //Andrew Burt - a.burt@ucl.ac.uk
 
-#include <pcl/point_types.h>
-#include <pcl/point_cloud.h>
+#include "leafsep.h"
+
 #include <pcl/io/pcd_io.h>
-#include <pcl/common/common.h>
 
 #include <armadillo>
-
-#include "treeseg.h"
-#include "leafsep.h"
 
 int main (int argc, char* argv[])
 {
@@ -20,7 +16,7 @@ int main (int argc, char* argv[])
 		std::cout << "----------: " << argv[i] << std::endl;
 		std::cout << "Reading volume cloud: " << std::flush;
 		std::vector<std::string> id = getFileID(argv[i]);
-		pcl::PointCloud<pcl::PointXYZ>::Ptr volume(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::PointCloud<PointTreeseg>::Ptr volume(new pcl::PointCloud<PointTreeseg>);
 		reader.read(argv[i],*volume);
 		std::cout << "complete" << std::endl;
 		//
@@ -29,7 +25,7 @@ int main (int argc, char* argv[])
 		float nnmax = 0;
 		for(int i=0;i<nndata.size();i++) if(nndata[i][1] > nnmax) nnmax = nndata[i][1];
 		std::cout << nnmax << ", " << std::flush;
-		std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> clusters;
+		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> clusters;
 		euclideanClustering(volume,nnmax,3,clusters);
 		ss.str("");
 		ss << "ec_" << id[0] << ".pcd";
@@ -37,7 +33,7 @@ int main (int argc, char* argv[])
 		std::cout << ss.str() << std::endl;
 		//	
 		std::cout << "Region-based segmentation: " << std::flush;
-		std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> regions;
+		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> regions;
 		int idx = findPrincipalCloudIdx(clusters);
 		int nnearest = 50;
 		int nmin = 3;
@@ -56,7 +52,7 @@ int main (int argc, char* argv[])
 	        gmmByCluster(regions,5,1,5,50,100,rfmat,rmodel);
 	        std::vector<int> rclassifications;
 	        rclassifications = classifyGmmClusterModel(regions,5,rfmat,rmodel);
-	        std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> csepclouds;
+	        std::vector<pcl::PointCloud<PointTreeseg>::Ptr> csepclouds;
 	        separateCloudsClassifiedByCluster(regions,rclassifications,csepclouds);
 		ss.str("");
 		ss << "ec_rg_rlw_" << id[0] << ".pcd";
@@ -69,7 +65,7 @@ int main (int argc, char* argv[])
 		gmmByPoint(csepclouds[1],50,5,1,5,50,100,pfmat,pmodel);
 		std::vector<int> pclassifications;
 		pclassifications = classifyGmmPointModel(csepclouds[1],5,pfmat,pmodel);
-		std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> psepclouds;
+		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> psepclouds;
 		separateCloudsClassifiedByPoint(csepclouds[1],pclassifications,psepclouds);
 		ss.str("");
 		ss << "ec_rg_rlw_plw_" << id[0] << ".pcd";
@@ -78,7 +74,7 @@ int main (int argc, char* argv[])
 		//
 		ss.str("");
 		ss << "ec_rg_rlw_plw_w_" << id[0] << ".pcd";
-		pcl::PointCloud<pcl::PointXYZ>::Ptr wood(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::PointCloud<PointTreeseg>::Ptr wood(new pcl::PointCloud<PointTreeseg>);
 		*wood += *csepclouds[0] + *psepclouds[0];
 		writer.write(ss.str(),*wood,true);
 		std::cout << ss.str() << std::endl;
@@ -99,7 +95,7 @@ int main (int argc, char* argv[])
 		std::cout << ss.str() << std::endl;
 		//
 		std::cout << "Building tree: " << std::flush;
-		pcl::PointCloud<pcl::PointXYZ>::Ptr tree(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::PointCloud<PointTreeseg>::Ptr tree(new pcl::PointCloud<PointTreeseg>);
 		buildTree(regions,tree);
 		ss.str("");
 		ss << "tree_" << id[0] << ".pcd";

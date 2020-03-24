@@ -50,10 +50,10 @@ add_executable(segmentcrown ${CMAKE_SOURCE_DIR}/src/segmentcrown.cpp)
 target_link_libraries(segmentcrown treeseg leafsep ${PCL_LIBRARIES})
 
 add_executable(xyz2pcd ${CMAKE_SOURCE_DIR}/src/xyz2pcd.cpp)
-target_link_libraries(xyz2pcd ${PCL_LIBRARIES})
+target_link_libraries(xyz2pcd treeseg ${PCL_LIBRARIES})
 
 add_executable(pcd2xyz ${CMAKE_SOURCE_DIR}/src/pcd2xyz.cpp)
-target_link_libraries(pcd2xyz ${PCL_LIBRARIES})
+target_link_libraries(pcd2xyz treeseg ${PCL_LIBRARIES})
 
 add_executable(sepwoodleaf ${CMAKE_SOURCE_DIR}/src/sepwoodleaf.cpp)
 target_link_libraries(sepwoodleaf treeseg leafsep ${PCL_LIBRARIES})

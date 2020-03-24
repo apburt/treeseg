@@ -1,12 +1,9 @@
 //Andrew Burt - a.burt@ucl.ac.uk
 
-#include <pcl/point_types.h>
-#include <pcl/point_cloud.h>
-#include <pcl/PointIndices.h>
+#include "treeseg.h"
+
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/common.h>
-
-#include "treeseg.h"
 
 int main(int argc, char* argv[])
 {
@@ -15,7 +12,7 @@ int main(int argc, char* argv[])
 	std::stringstream ss;
 	//
 	std::cout << "Reading plot-level cloud: " << std::flush;
-	pcl::PointCloud<pcl::PointXYZ>::Ptr plot(new pcl::PointCloud<pcl::PointXYZ>);
+	pcl::PointCloud<PointTreeseg>::Ptr plot(new pcl::PointCloud<PointTreeseg>);
 	reader.read(argv[2],*plot);
 	std::cout << "complete" << std::endl;
 	//
@@ -23,7 +20,7 @@ int main(int argc, char* argv[])
 	{
 		std::cout << "----------: " << argv[i] << std::endl;		
 		std::vector<std::string> id = getFileID(argv[i]);
-		pcl::PointCloud<pcl::PointXYZ>::Ptr foundstem(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::PointCloud<PointTreeseg>::Ptr foundstem(new pcl::PointCloud<PointTreeseg>);
 		reader.read(argv[i],*foundstem);
 		//
 		std::cout << "RANSAC cylinder fit: " << std::flush;
@@ -34,7 +31,7 @@ int main(int argc, char* argv[])
 		std::cout << cyl.rad << std::endl;	
 		//
 		std::cout << "Segmenting extended cylinder: " << std::flush;
-		pcl::PointCloud<pcl::PointXYZ>::Ptr volume(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::PointCloud<PointTreeseg>::Ptr volume(new pcl::PointCloud<PointTreeseg>);
 		float expansionfactor = 6;
 		cyl.rad = cyl.rad*expansionfactor;
 		spatial3DCylinderFilter(plot,cyl,volume);
@@ -44,9 +41,9 @@ int main(int argc, char* argv[])
 		std::cout << ss.str() << std::endl;
 		//
 		std::cout << "Segmenting ground returns: " << std::flush;
-		pcl::PointCloud<pcl::PointXYZ>::Ptr bottom(new pcl::PointCloud<pcl::PointXYZ>);
-		pcl::PointCloud<pcl::PointXYZ>::Ptr top(new pcl::PointCloud<pcl::PointXYZ>);
-		pcl::PointCloud<pcl::PointXYZ>::Ptr vnoground(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::PointCloud<PointTreeseg>::Ptr bottom(new pcl::PointCloud<PointTreeseg>);
+		pcl::PointCloud<PointTreeseg>::Ptr top(new pcl::PointCloud<PointTreeseg>);
+		pcl::PointCloud<PointTreeseg>::Ptr vnoground(new pcl::PointCloud<PointTreeseg>);
 		pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
 		float zdelta = 0.25;
 		Eigen::Vector4f min, max;
@@ -73,7 +70,7 @@ int main(int argc, char* argv[])
 		}
 		float dmax = (nnmax+nnmin)/2;
 		std::cout << dmax << ", " << std::flush;
-		std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> clusters;
+		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> clusters;
 		euclideanClustering(vnoground,dmax,3,clusters);
 		ss.str("");
 		ss << "cylinder_noground_clusters_" << id[0] << ".pcd";
@@ -82,7 +79,7 @@ int main(int argc, char* argv[])
 		//
 		std::cout << "Region-based segmentation: " << std::flush; 
 		int idx = findClosestIdx(foundstem,clusters,true);
-		std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> regions;
+		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> regions;
 		nnearest = 50;
 		int nmin = 3;
 		float smoothness = atof(argv[1]);
@@ -93,7 +90,7 @@ int main(int argc, char* argv[])
 		std::cout << ss.str() << std::endl;
 		//
 		std::cout << "Correcting stem: " << std::flush;
-		pcl::PointCloud<pcl::PointXYZ>::Ptr stem(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::PointCloud<PointTreeseg>::Ptr stem(new pcl::PointCloud<PointTreeseg>);
 		idx = findClosestIdx(foundstem,regions,true);
 		nnearest = 60;
 		zdelta = 0.75;

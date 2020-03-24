@@ -3,7 +3,7 @@
 *
 * MIT License
 *
-* Copyright 2018 Andrew Burt and Matheus Boni Vicari
+* Copyright 2020 Andrew Burt and Matheus Boni Vicari
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to
@@ -30,7 +30,6 @@
 // Armadillo (http://arma.sourceforge.net)
 
 #include "leafsep.h"
-#include "treeseg.h"
 
 #include <cmath>
 
@@ -38,9 +37,9 @@
 #include <pcl/common/transforms.h>
 #include <pcl/kdtree/kdtree_flann.h>
 
-void gmmByPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int knn, arma::uword n_gaus, int dist_mode, int seed_mode, int km_iter, int em_iter, arma::mat &featmatrix, arma::gmm_diag &model)
+void gmmByPoint(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int knn, arma::uword n_gaus, int dist_mode, int seed_mode, int km_iter, int em_iter, arma::mat &featmatrix, arma::gmm_diag &model)
 {
-	pcl::PointCloud<pcl::PointXYZ>::Ptr kcloud(new pcl::PointCloud<pcl::PointXYZ>);
+	pcl::PointCloud<PointTreeseg>::Ptr kcloud(new pcl::PointCloud<PointTreeseg>);
 	Eigen::Vector4f centroid;
 	Eigen::Matrix3f covariancematrix,eigenvectors;
 	Eigen::Vector3f eigenvalues;
@@ -48,14 +47,14 @@ void gmmByPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int knn, arma::uword
 	float features[6];
 	featmatrix.resize(6,cloud->points.size());
 	featmatrix.zeros();
-	pcl::KdTreeFLANN<pcl::PointXYZ> tree;
+	pcl::KdTreeFLANN<PointTreeseg> tree;
 	tree.setInputCloud(cloud);
 	int k = knn+1;
 	std::vector<int> pointIdxNKNSearch(k);
 	std::vector<float> pointNKNSquaredDistance(k);
 	for(int i=0;i<cloud->points.size();i++)
 	{
-		pcl::PointXYZ searchPoint = cloud->points[i];
+		PointTreeseg searchPoint = cloud->points[i];
 		tree.nearestKSearch(searchPoint,k,pointIdxNKNSearch,pointNKNSquaredDistance);
 		for(int j=0;j<pointIdxNKNSearch.size();j++) kcloud->insert(kcloud->end(),cloud->points[pointIdxNKNSearch[j]]);
 		computePCA(kcloud,centroid,covariancematrix,eigenvectors,eigenvalues);
@@ -75,7 +74,7 @@ void gmmByPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int knn, arma::uword
 	bool status = model.learn(featmatrix,n_gaus,arma::gmm_dist_mode(dist_mode),arma::gmm_seed_mode(seed_mode),km_iter,em_iter,1e-10,false);
 }
 
-void gmmByCluster(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds, arma::uword n_gaus, int dist_mode, int seed_mode, int km_iter, int em_iter, arma::mat &featmatrix, arma::gmm_full &model)
+void gmmByCluster(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, arma::uword n_gaus, int dist_mode, int seed_mode, int km_iter, int em_iter, arma::mat &featmatrix, arma::gmm_full &model)
 {
 	Eigen::Vector4f centroid;
 	Eigen::Matrix3f covariancematrix,eigenvectors;
@@ -105,7 +104,7 @@ void gmmByCluster(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds, arma
 	bool status = model.learn(featmatrix,n_gaus,arma::gmm_dist_mode(dist_mode),arma::gmm_seed_mode(seed_mode),km_iter,em_iter,1e-10,false);
 }
 
-std::vector<int> classifyGmmPointModel(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int n_gaus, arma::mat &featmatrix, arma::gmm_diag &model)
+std::vector<int> classifyGmmPointModel(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int n_gaus, arma::mat &featmatrix, arma::gmm_diag &model)
 {
 	int features =6;
 	Eigen::MatrixXf means(features,n_gaus);
@@ -138,7 +137,7 @@ std::vector<int> classifyGmmPointModel(pcl::PointCloud<pcl::PointXYZ>::Ptr &clou
 	return classifications;
 }
 
-std::vector<int> classifyGmmClusterModel(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds, int n_gaus, arma::mat &featmatrix, arma::gmm_full &model)
+std::vector<int> classifyGmmClusterModel(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, int n_gaus, arma::mat &featmatrix, arma::gmm_full &model)
 {
 	int features = 6;
 	Eigen::MatrixXf means(features,n_gaus);
@@ -171,27 +170,27 @@ std::vector<int> classifyGmmClusterModel(std::vector<pcl::PointCloud<pcl::PointX
 	return classifications;
 }
 
-void separateCloudsClassifiedByPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, std::vector<int> classifications, std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &classifiedclouds)
+void separateCloudsClassifiedByPoint(pcl::PointCloud<PointTreeseg>::Ptr &cloud, std::vector<int> classifications, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &classifiedclouds)
 {
 	auto minmax = minmax_element(classifications.begin(),classifications.end());
 	int min = *(minmax.first);
 	int max = *(minmax.second);
 	for(int i=0;i<=max;i++)
 	{
-		pcl::PointCloud<pcl::PointXYZ>::Ptr ccloud(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::PointCloud<PointTreeseg>::Ptr ccloud(new pcl::PointCloud<PointTreeseg>);
 		classifiedclouds.push_back(ccloud);
 	}
 	for(int j=0;j<cloud->points.size();j++) classifiedclouds[classifications[j]]->insert(classifiedclouds[classifications[j]]->end(),cloud->points[j]);
 }
 
-void separateCloudsClassifiedByCluster(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds, std::vector<int> classifications, std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &classifiedclouds)
+void separateCloudsClassifiedByCluster(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, std::vector<int> classifications, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &classifiedclouds)
 {
 	auto minmax = minmax_element(classifications.begin(),classifications.end());
 	int min = *(minmax.first);
 	int max = *(minmax.second);
 	for(int i=0;i<=max;i++)
 	{
-		pcl::PointCloud<pcl::PointXYZ>::Ptr ccloud(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::PointCloud<PointTreeseg>::Ptr ccloud(new pcl::PointCloud<PointTreeseg>);
 		classifiedclouds.push_back(ccloud);
 	}
 	for(int j=0;j<clouds.size();j++)
@@ -200,7 +199,7 @@ void separateCloudsClassifiedByCluster(std::vector<pcl::PointCloud<pcl::PointXYZ
 	}
 }
 
-void writeCloudClassifiedByPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, std::vector<int> &classifications, std::string fname)
+void writeCloudClassifiedByPoint(pcl::PointCloud<PointTreeseg>::Ptr &cloud, std::vector<int> &classifications, std::string fname)
 {
 	pcl::PCDWriter writer;
 	auto minmax = minmax_element(classifications.begin(),classifications.end());
@@ -229,7 +228,7 @@ void writeCloudClassifiedByPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, std
 	writer.write(fname,*out,true);
 }
 
-void writeCloudClassifiedByCluster(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds, std::vector<int> &classifications, std::string fname)
+void writeCloudClassifiedByCluster(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, std::vector<int> &classifications, std::string fname)
 {
 	pcl::PCDWriter writer;
 	auto minmax = minmax_element(classifications.begin(),classifications.end());

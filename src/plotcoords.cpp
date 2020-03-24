@@ -1,14 +1,12 @@
 //Andrew Burt - a.burt@ucl.ac.uk
 
 #include <iostream>
-#include <sstream>
-#include <string>
 #include <vector>
+#include <sstream>
 #include <fstream>
 #include <algorithm>
 
 #include <dirent.h>
-#include <limits.h>
 
 int main(int argc,char** argv)
 {

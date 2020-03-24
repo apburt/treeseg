@@ -1,9 +1,7 @@
 //Andrew Burt - a.burt@ucl.ac.uk
 
-#include <boost/algorithm/string/split.hpp>
+#include "treeseg.h"
 
-#include <pcl/point_types.h>
-#include <pcl/point_cloud.h>
 #include <pcl/io/pcd_io.h>
 
 int main (int argc, char* argv[])

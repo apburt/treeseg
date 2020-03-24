@@ -3,7 +3,7 @@
 *
 * MIT License
 *
-* Copyright 2018 Andrew Burt and Matheus Boni Vicari
+* Copyright 2020 Andrew Burt and Matheus Boni Vicari
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to
@@ -29,19 +29,18 @@
 // Point Cloud Library (http://www.pointclouds.org)
 // Armadillo (http://arma.sourceforge.net)
 
-#include <pcl/point_types.h>
-#include <pcl/point_cloud.h>
+#include "treeseg.h"
 
 #include <armadillo>
 
-void gmmByPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int knn, arma::uword n_gaus, int dist_mode, int seed_mode, int km_iter, int em_iter, arma::mat &featmatrix, arma::gmm_diag &model);
-void gmmByCluster(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds, arma::uword n_gaus, int dist_mode, int seed_mode, int km_iter, int em_iter, arma::mat &featmatrix, arma::gmm_full &model);
+void gmmByPoint(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int knn, arma::uword n_gaus, int dist_mode, int seed_mode, int km_iter, int em_iter, arma::mat &featmatrix, arma::gmm_diag &model);
+void gmmByCluster(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, arma::uword n_gaus, int dist_mode, int seed_mode, int km_iter, int em_iter, arma::mat &featmatrix, arma::gmm_full &model);
 
-std::vector<int> classifyGmmPointModel(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, int n_gaus, arma::mat &featmatrix, arma::gmm_diag &model);
-std::vector<int> classifyGmmClusterModel(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds, int n_gaus, arma::mat &featmatrix, arma::gmm_full &model);
+std::vector<int> classifyGmmPointModel(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int n_gaus, arma::mat &featmatrix, arma::gmm_diag &model);
+std::vector<int> classifyGmmClusterModel(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, int n_gaus, arma::mat &featmatrix, arma::gmm_full &model);
 
-void separateCloudsClassifiedByPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, std::vector<int> classifications, std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &classifiedclouds);
-void separateCloudsClassifiedByCluster(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds, std::vector<int> classifications, std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &classifiedclouds);
+void separateCloudsClassifiedByPoint(pcl::PointCloud<PointTreeseg>::Ptr &cloud, std::vector<int> classifications, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &classifiedclouds);
+void separateCloudsClassifiedByCluster(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, std::vector<int> classifications, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &classifiedclouds);
 
-void writeCloudClassifiedByPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, std::vector<int> &classifications, std::string fname);
-void writeCloudClassifiedByCluster(std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> &clouds, std::vector<int> &classifications, std::string fname);
+void writeCloudClassifiedByPoint(pcl::PointCloud<PointTreeseg>::Ptr &cloud, std::vector<int> &classifications, std::string fname);
+void writeCloudClassifiedByCluster(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, std::vector<int> &classifications, std::string fname);

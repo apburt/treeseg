@@ -1,9 +1,7 @@
 //Andrew Burt - a.burt@ucl.ac.uk
 
-#include <boost/algorithm/string/split.hpp>
+#include "treeseg.h"
 
-#include <pcl/point_types.h>
-#include <pcl/point_cloud.h>
 #include <pcl/io/pcd_io.h>
 
 int main (int argc, char* argv[])
@@ -19,7 +17,7 @@ int main (int argc, char* argv[])
 		for(int j=0;j<split.size()-1;j++) ss << split[j] << ".";
 		ss << "txt";
 		std::ofstream outfile(ss.str());
-		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::PointCloud<PointTreeseg>::Ptr cloud(new pcl::PointCloud<PointTreeseg>);
 		reader.read(argv[i],*cloud);
 		for(int i=0;i<cloud->points.size();i++)
 		{

@@ -1,12 +1,10 @@
 //Andrew Burt - a.burt@ucl.ac.uk
 
-#include <pcl/point_types.h>
-#include <pcl/point_cloud.h>
+#include "treeseg.h"
+
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/common.h>
-#include <pcl/common/transforms.h>
-
-#include "treeseg.h"
+#include <pcl/common/centroid.h>
 
 float maxheight(float dbh)
 {
@@ -29,7 +27,7 @@ int main (int argc, char** argv)
 	pcl::PCDReader reader;
 	pcl::PCDWriter writer;
 	std::cout << "Reading plot-level cloud: " << std::flush;
-	pcl::PointCloud<pcl::PointXYZ>::Ptr plot(new pcl::PointCloud<pcl::PointXYZ>);
+	pcl::PointCloud<PointTreeseg>::Ptr plot(new pcl::PointCloud<PointTreeseg>);
 	reader.read(argv[1],*plot);
 	std::cout << "complete" << std::endl;
 	for(int i=2;i<argc;i++)
@@ -37,7 +35,7 @@ int main (int argc, char** argv)
 		std::cout << "---------------" << std::endl;
 		//
 		std::vector<std::string> id = getFileID(argv[i]);
-		pcl::PointCloud<pcl::PointXYZ>::Ptr stem(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::PointCloud<PointTreeseg>::Ptr stem(new pcl::PointCloud<PointTreeseg>);
 		reader.read(argv[i],*stem);
 		//
 		std::cout << "Estimating DBH: " << std::flush;
@@ -53,10 +51,10 @@ int main (int argc, char** argv)
 		std::cout << h << "m x " << c << "m (HxW)" << std::endl;
 		//
 		std::cout << "Segmenting volume: " << std::flush;
-		pcl::PointCloud<pcl::PointXYZ>::Ptr xslice(new pcl::PointCloud<pcl::PointXYZ>);
-		pcl::PointCloud<pcl::PointXYZ>::Ptr yslice(new pcl::PointCloud<pcl::PointXYZ>);
-		pcl::PointCloud<pcl::PointXYZ>::Ptr zslice(new pcl::PointCloud<pcl::PointXYZ>);
-		pcl::PointCloud<pcl::PointXYZ>::Ptr volume(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::PointCloud<PointTreeseg>::Ptr xslice(new pcl::PointCloud<PointTreeseg>);
+		pcl::PointCloud<PointTreeseg>::Ptr yslice(new pcl::PointCloud<PointTreeseg>);
+		pcl::PointCloud<PointTreeseg>::Ptr zslice(new pcl::PointCloud<PointTreeseg>);
+		pcl::PointCloud<PointTreeseg>::Ptr volume(new pcl::PointCloud<PointTreeseg>);
 		Eigen::Vector4f min,max,centroid;
 		pcl::getMinMax3D(*stem,min,max);
 		pcl::compute3DCentroid(*stem,centroid);
