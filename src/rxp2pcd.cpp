@@ -14,10 +14,10 @@ struct pcloud
 	std::vector<float> range;
 	std::vector<float> amplitude;
 	std::vector<float> reflectance;
-	std::vector<float> deviation;
-	std::vector<float> return_number;
-	float scan_number;
-	std::vector<double> time;
+	std::vector<uint16_t> deviation;
+	std::vector<uint16_t> return_number;
+	uint16_t scan_number;
+	std::vector<float> time;
 	float matrix[16];
 };
 
@@ -38,15 +38,20 @@ class importer : public scanlib::pointcloud
 				pc.range.push_back(targets[i].echo_range);
 				pc.amplitude.push_back(targets[i].amplitude);
 				pc.reflectance.push_back(targets[i].reflectance);
-				pc.deviation.push_back(targets[i].deviation);
-				pc.return_number.push_back(i+1);
-				pc.time.push_back(targets[i].time);
+				pc.deviation.push_back((uint16_t)targets[i].deviation);
+				pc.return_number.push_back((uint16_t)i+1);
+				pc.time.push_back((float)targets[i].time);
+				//the following truncations have occured:
+				//deviation: float to uint16_t
+				//return number: int to uint16_t
+				//time: double to float
 			}	
 		}
 };
 
 int main(int argc,char** argv)
 {
+	bool basic = false; //true: x,y,z ; false: x,y,z,range,reflectance,deviation,return_number,scan_number
 	std::string top_dir = argv[1];
 	if(top_dir[top_dir.length()-1] != '/') top_dir = top_dir + "/";
 	std::ifstream cfile;
@@ -128,8 +133,8 @@ int main(int argc,char** argv)
 			std::string rxpname;
 			for(int l=0;l<position_contents.size();l++)
 			{
-				if(position_contents[l][14] == 'r' && position_contents[l][15] == 'x' && position_contents[l][16] == 'p' && position_contents[l].length() == 17)
-				//if(position_contents[l][14] == 'm' && position_contents[l][15] == 'o' && position_contents[l][16] == 'n' && position_contents[l].length() == 21)
+				//if(position_contents[l][14] == 'r' && position_contents[l][15] == 'x' && position_contents[l][16] == 'p' && position_contents[l].length() == 17)
+				if(position_contents[l][14] == 'm' && position_contents[l][15] == 'o' && position_contents[l][16] == 'n' && position_contents[l].length() == 21)
 				{
 					ss.str("");
 					ss << top_dir << positions[k] << "/" << position_contents[l];
@@ -165,7 +170,7 @@ int main(int argc,char** argv)
 			else if(positions[k][7] == '0') ss << positions[k][8] << positions[k][9];
 			else ss << positions[k][7] << positions[k][8] << positions[k][9];
 			std::string scan_number = ss.str();
-			pc.scan_number = atof(scan_number.c_str());
+			pc.scan_number = (uint16_t)atoi(scan_number.c_str());
 			std::ifstream mfile;
 			mfile.open(matrixname);
 			int no_count = 0;
@@ -193,6 +198,14 @@ int main(int argc,char** argv)
 								xyzfiles[n].write(reinterpret_cast<const char*>(&X),sizeof(X));
 								xyzfiles[n].write(reinterpret_cast<const char*>(&Y),sizeof(Y));
 								xyzfiles[n].write(reinterpret_cast<const char*>(&Z),sizeof(Z));
+								if(basic == false)
+								{
+									xyzfiles[n].write(reinterpret_cast<const char*>(&pc.range[m]),sizeof(pc.range[m]));
+									xyzfiles[n].write(reinterpret_cast<const char*>(&pc.reflectance[m]),sizeof(pc.reflectance[m]));
+									xyzfiles[n].write(reinterpret_cast<const char*>(&pc.deviation[m]),sizeof(pc.deviation[m]));
+									xyzfiles[n].write(reinterpret_cast<const char*>(&pc.return_number[m]),sizeof(pc.return_number[m]));
+									xyzfiles[n].write(reinterpret_cast<const char*>(&pc.scan_number),sizeof(pc.scan_number));
+								}
 								tile_pointcount[n] += 1;
 							}
 						}
@@ -208,7 +221,8 @@ int main(int argc,char** argv)
 	for(int q=0;q<tile_count;q++)
 	{
 		std::ofstream headerstream("header.tmp");
-		headerstream << "VERSION 0.7" << std::endl << "FIELDS x y z" << std::endl << "SIZE 4 4 4" << std::endl << "TYPE F F F" << std::endl << "COUNT 1 1 1" << std::endl << "WIDTH " << tile_pointcount[q] << std::endl << "HEIGHT 1" << std::endl << "VIEWPOINT 0 0 0 1 0 0 0" << std::endl << "POINTS " << tile_pointcount[q] << std::endl << "DATA binary" << std::endl;
+		if(basic == true) headerstream << "VERSION 0.7" << std::endl << "FIELDS x y z" << std::endl << "SIZE 4 4 4" << std::endl << "TYPE F F F" << std::endl << "COUNT 1 1 1" << std::endl << "WIDTH " << tile_pointcount[q] << std::endl << "HEIGHT 1" << std::endl << "VIEWPOINT 0 0 0 1 0 0 0" << std::endl << "POINTS " << tile_pointcount[q] << std::endl << "DATA binary" << std::endl;
+		if(basic == false) headerstream << "VERSION 0.7" << std::endl << "FIELDS x y z range reflectance deviation return_number scan_number" << std::endl << "SIZE 4 4 4 4 4 2 2 2" << std::endl << "TYPE F F F F F U U U" << std::endl << "COUNT 1 1 1 1 1 1 1 1" << std::endl << "WIDTH " << tile_pointcount[q] << std::endl << "HEIGHT 1" << std::endl << "VIEWPOINT 0 0 0 1 0 0 0" << std::endl << "POINTS " << tile_pointcount[q] << std::endl << "DATA binary" << std::endl;
 		headerstream.close();
 		ss.str("");
 		ss << "cat header.tmp " << xyznames[q] << " > " << pcdnames[q] << "; rm header.tmp " << xyznames[q];
