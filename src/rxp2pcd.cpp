@@ -51,7 +51,7 @@ class importer : public scanlib::pointcloud
 
 int main(int argc,char** argv)
 {
-	bool basic = false; //true: x,y,z ; false: x,y,z,range,reflectance,deviation,return_number,scan_number
+	bool basic = true; //true: x,y,z ; false: x,y,z,range,reflectance,deviation,return_number,scan_number
 	std::string top_dir = argv[1];
 	if(top_dir[top_dir.length()-1] != '/') top_dir = top_dir + "/";
 	std::ifstream cfile;
@@ -133,8 +133,8 @@ int main(int argc,char** argv)
 			std::string rxpname;
 			for(int l=0;l<position_contents.size();l++)
 			{
-				//if(position_contents[l][14] == 'r' && position_contents[l][15] == 'x' && position_contents[l][16] == 'p' && position_contents[l].length() == 17)
-				if(position_contents[l][14] == 'm' && position_contents[l][15] == 'o' && position_contents[l][16] == 'n' && position_contents[l].length() == 21)
+				if(position_contents[l][14] == 'r' && position_contents[l][15] == 'x' && position_contents[l][16] == 'p' && position_contents[l].length() == 17)
+				//if(position_contents[l][14] == 'm' && position_contents[l][15] == 'o' && position_contents[l][16] == 'n' && position_contents[l].length() == 21)
 				{
 					ss.str("");
 					ss << top_dir << positions[k] << "/" << position_contents[l];
