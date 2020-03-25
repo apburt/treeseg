@@ -41,19 +41,33 @@
 
 std::vector<std::string> getFileID(char *fname)
 {
-	//Assuming ../DIR/PLOT_ID.XXX.PCD
-	std::string tmp(fname);
-	std::string plotid,treeid;
+	//Fairly inflexible naming convention:
+	//From rxp2pcd: ./DIR/PLOT.tile.number.pcd (plot can include hyphen e.g., FGC01 or FGC-01)
+	//From downsample/thin: ./DIR/PLOT.tile.downsample(thin).number.pcd
+	//Onwards: ./DIR/PLOT.X.number.pcd
+	std::string filename(fname);
+	std::string pid,tid;
 	std::vector<std::string> info;
-	std::vector<std::string> tmp1,tmp2,tmp3; 
-	boost::split(tmp1,tmp,boost::is_any_of("/"));
+	std::vector<std::string> tmp1,tmp2,tmp3;
+	boost::split(tmp1,filename,boost::is_any_of("/"));
 	boost::split(tmp2,tmp1[tmp1.size()-1],boost::is_any_of("."));
-	boost::split(tmp3,tmp2[0],boost::is_any_of("_"));	
-	plotid = tmp3[0];
-	treeid = tmp3[1];
-	info.push_back(treeid);
-	info.push_back(plotid);
-	return info;
+	if(tmp2[1] == "tile")
+	{
+		pid = tmp2[0];
+		if(tmp2[2] == "downsample" || tmp2[2] == "thin") tid = tmp2[3];
+		else tid = tmp2[2];
+		info.push_back(pid);
+		info.push_back(tid);
+		return info;
+	}
+	else
+	{
+		pid = tmp2[0];
+		tid = tmp2[tmp2.size()-2];
+		info.push_back(pid);
+		info.push_back(tid);
+		return info;
+	}
 }
 
 std::vector<float> dNN(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest)
