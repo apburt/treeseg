@@ -47,8 +47,7 @@ Below is an example usage of the treeseg binaries:
 
 * plotcoords ../matrix/ > nouragesH20_coords.dat
 * rxp2pcd ../ nouraguesH20_coords.dat 25 15 nouraguesH20
-* nearestneighbour 1 4 nouraguesH20.sample.pcd > nouraguesH20_nn.dat
-* downsample 0.04 1 nouraguesH20_*.pcd
+* downsample 0.04 nouraguesH20.tile.*.pcd
 * getdemslice 2 3 6 nouraguesH20_*.downsample.pcd
 * findstems 15 0.2 2 ../nouraguesH20_coords.dat ../nouraguesH20.slice.downsample.pcd
 * segmentstem 12.5 ../nouraguesH20.downsample.pcd ../clusters/cluster_*.pcd
