@@ -104,6 +104,21 @@ std::vector<float> dNN(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest)
 	return results;
 }
 
+std::vector<int> nearestIdx(pcl::PointCloud<PointTreeseg>::Ptr &searchpoints, pcl::PointCloud<PointTreeseg>::Ptr &cloud)
+{
+	std::vector<int> idxs;
+	pcl::KdTreeFLANN<PointTreeseg> tree;
+	tree.setInputCloud(cloud);
+	for(int i=0;i<searchpoints->points.size();i++)
+	{
+		std::vector<int> pointIdxNKNSearch(1);
+		std::vector<float> pointNKNSquaredDistance(1);
+		tree.nearestKSearch(searchpoints->points[i],1,pointIdxNKNSearch,pointNKNSquaredDistance);
+		idxs.push_back(pointIdxNKNSearch[0]);
+	}
+	return idxs;
+}
+
 std::vector<std::vector<int>> nNearestIdx(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest)
 {
 	std::vector<std::vector<int>> nidx;
