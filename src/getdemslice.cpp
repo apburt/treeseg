@@ -10,13 +10,12 @@ int main (int argc, char *argv[])
 	float zmin = atof(argv[2]);
 	float zmax = atof(argv[3]);
 	pcl::PointCloud<PointTreeseg>::Ptr plotcloud(new pcl::PointCloud<PointTreeseg>);
-	pcl::PCDReader reader;
 	pcl::PCDWriter writer;
-	reader.read(argv[4],*plotcloud);
+	readTiles(argc,argv,plotcloud);
 	std::vector<std::string> id = getFileID(argv[4]);
 	std::stringstream ss;
 	ss.str("");
-	ss << id[1] << ".slice.downsample.pcd";
+	ss << id[0] << ".slice.pcd";
 	std::vector<std::vector<float>> dem;
 	pcl::PointCloud<PointTreeseg>::Ptr slice(new pcl::PointCloud<PointTreeseg>);
 	dem = getDemAndSlice(plotcloud,resolution,zmin,zmax,slice);
