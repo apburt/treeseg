@@ -70,6 +70,28 @@ std::vector<std::string> getFileID(char *fname)
 	}
 }
 
+void readTiles(int argc, char *argv[], pcl::PointCloud<PointTreeseg>::Ptr &cloud)
+{
+	pcl::PCDReader reader;
+	pcl::PointCloud<PointTreeseg>::Ptr tmp(new pcl::PointCloud<PointTreeseg>);
+	for(int i=0;i<argc;i++)
+	{
+		std::string filename(argv[i]);
+		std::vector<std::string> tmp1,tmp2;
+		boost::split(tmp1,filename,boost::is_any_of("/"));
+		boost::split(tmp2,tmp1[tmp1.size()-1],boost::is_any_of("."));
+		if(tmp2.size() > 1)
+		{
+			if(tmp2[1] == "tile")
+			{
+				reader.read(argv[i],*tmp);
+				*cloud += *tmp;
+				tmp->clear();	
+			}
+		}
+	}
+}
+
 std::vector<float> dNN(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest)
 {
 	std::vector<float> dist;

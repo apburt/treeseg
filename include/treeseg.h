@@ -55,6 +55,7 @@ struct cylinder
 };
 
 std::vector<std::string> getFileID(char *fname);
+void readTiles(int argc, char *argv[], pcl::PointCloud<PointTreeseg>::Ptr &cloud);
 
 std::vector<float> dNN(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest);
 std::vector<std::vector<float>> dNNz(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, float zstep);
