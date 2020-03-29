@@ -11,12 +11,13 @@ int main(int argc, char* argv[])
 	pcl::PCDWriter writer;
 	std::stringstream ss;
 	//
+	int start = getTilesStartIdx(argc,argv);
 	std::cout << "Reading plot-level cloud: " << std::flush;
 	pcl::PointCloud<PointTreeseg>::Ptr plot(new pcl::PointCloud<PointTreeseg>);
-	reader.read(argv[2],*plot);
+	readTiles(argc,argv,plot);
 	std::cout << "complete" << std::endl;
 	//
-	for(int i=3;i<argc;i++)
+	for(int i=2;i<getTilesStartIdx(argc,argv);i++)
 	{
 		std::cout << "----------: " << argv[i] << std::endl;		
 		std::vector<std::string> id = getFileID(argv[i]);
