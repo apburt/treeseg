@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 		cyl.rad = cyl.rad*expansionfactor;
 		spatial3DCylinderFilter(plot,cyl,volume);
 		ss.str("");
-		ss << "cylinder_" << id[0] << ".pcd";
+		ss << id[0] << ".intermediate.cylinder." << id[1] << ".pcd";
 		writer.write(ss.str(),*volume,true);
 		std::cout << ss.str() << std::endl;
 		//
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 		extractIndices(bottom,inliers,true,vnoground);
 		*vnoground += *top;
 		ss.str("");
-		ss << "cylinder_noground_" << id[0] << ".pcd";
+		ss << id[0] << ".intermediate.cylinder.noground." << id[1] << ".pcd";
 		writer.write(ss.str(),*vnoground,true);
 		std::cout << ss.str() << std::endl;
 		//
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> clusters;
 		euclideanClustering(vnoground,dmax,3,clusters);
 		ss.str("");
-		ss << "cylinder_noground_clusters_" << id[0] << ".pcd";
+		ss << id[0] << ".intermediate.cylinder.noground.clusters." << id[1] << ".pcd";
 		writeClouds(clusters,ss.str(),false);
 		std::cout << ss.str() << std::endl;
 		//
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
 		float smoothness = atof(argv[1]);
 		regionSegmentation(clusters[idx],nnearest,nmin,smoothness,regions);
 		ss.str("");
-		ss << "cylinder_noground_clusters_regions_" << id[0] << ".pcd";
+		ss << id[0] << ".intermediate.cylinder.noground.clusters.regions." << id[1] << ".pcd";
 		writeClouds(regions,ss.str(),false);
 		std::cout << ss.str() << std::endl;
 		//
@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
 		float radchangemin = 0.9;
 		correctStem(regions[idx],nnearest,zstart,zdelta,stepcovmax,radchangemin,stem);
 		ss.str("");
-		ss << "stem_" << id[0] << ".pcd";
+		ss << id[0] << ".stem." << id[1] << ".pcd";
 		writer.write(ss.str(),*stem,true);
 		std::cout << ss.str() << std::endl;
 	}

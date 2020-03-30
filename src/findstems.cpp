@@ -12,6 +12,7 @@ int main (int argc, char *argv[])
 	std::stringstream ss;
 	//
 	std::cout << "Reading slice: " << std::flush;
+	std::vector<std::string> id = getFileID(argv[5]);
 	pcl::PointCloud<PointTreeseg>::Ptr slice(new pcl::PointCloud<PointTreeseg>);
 	reader.read(argv[5],*slice);
 	std::cout << "complete" << std::endl;
@@ -23,7 +24,7 @@ int main (int argc, char *argv[])
 	std::vector<float> nndata = dNN(slice,nnearest);
 	euclideanClustering(slice,nndata[0],nmin,clusters);
 	ss.str("");
-	ss << "slice_clusters.pcd";
+	ss << id[0] << ".intermediate.slice.clusters.pcd";
 	writeClouds(clusters,ss.str(),false);
 	std::cout << ss.str() << " | " << clusters.size() << std::endl;
 	//
@@ -39,7 +40,7 @@ int main (int argc, char *argv[])
 		for(int j=0;j<tmpregions.size();j++) regions.push_back(tmpregions[j]);
 	}
 	ss.str("");
-	ss << "slice_clusters_regions.pcd";
+	ss << id[0] << ".intermediate.slice.clusters.regions.pcd";
 	writeClouds(regions,ss.str(),false);
 	std::cout << ss.str() << " | " << regions.size() << std::endl;
 	//
@@ -90,7 +91,7 @@ int main (int argc, char *argv[])
 		}
 	}
 	ss.str("");
-	ss << "slice_clusters_regions_cylinders.pcd";
+	ss << id[0] << ".intermediate.slice.clusters.regions.cylinders.pcd";
 	writeClouds(cyls,ss.str(),false);
 	std::cout << ss.str() << " | " << cyls.size() << std::endl;
 	//
@@ -112,7 +113,7 @@ int main (int argc, char *argv[])
 	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> pca;
         for(int k=0;k<idx.size();k++) pca.push_back(cyls[idx[k]]);	
 	ss.str("");
-	ss << "slice_clusters_regions_cylinders_principal.pcd";
+	ss << id[0] << ".intermediate.slice.clusters.regions.cylinders.principal.pcd";
 	writeClouds(pca,ss.str(),false);
 	std::cout << ss.str() << " | " << pca.size() << std::endl;
 	//
@@ -122,12 +123,12 @@ int main (int argc, char *argv[])
 	stems = pca;
 	catIntersectingClouds(stems);
 	ss.str("");
-	ss << "slice_clusters_regions_cylinders_principal_cat.pcd";
+	ss << id[0] << ".intermediate.slice.clusters.regions.cylinders.principal.cat.pcd";
 	writeClouds(stems,ss.str(),false);
 	for(int m=0;m<stems.size();m++)
 	{
 		ss.str("");
-		ss << "cluster_" << m << ".pcd";
+		ss << id[0] << ".cluster." << m << ".pcd";
 		writer.write(ss.str(),*stems[m],true);
 	}
 	std::cout << ss.str() << " | " << stems.size() << std::endl;
