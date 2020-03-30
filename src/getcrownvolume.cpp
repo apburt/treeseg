@@ -28,9 +28,10 @@ int main (int argc, char** argv)
 	pcl::PCDWriter writer;
 	std::cout << "Reading plot-level cloud: " << std::flush;
 	pcl::PointCloud<PointTreeseg>::Ptr plot(new pcl::PointCloud<PointTreeseg>);
-	reader.read(argv[1],*plot);
+	readTiles(argc,argv,plot);
 	std::cout << "complete" << std::endl;
-	for(int i=2;i<argc;i++)
+	//
+	for(int i=1;i<getTilesStartIdx(argc,argv);i++)
 	{
 		std::cout << "---------------" << std::endl;
 		//
@@ -64,7 +65,7 @@ int main (int argc, char** argv)
 		*volume += *stem;
 		*volume += *zslice;
 		std::stringstream ss;
-		ss << "volume_" << id[0] << ".pcd";
+		ss << id[0] << ".volume." << id[1] << ".pcd";
 		writer.write(ss.str(),*volume,true);	
 		std::cout << ss.str() << std::endl;
 	}
