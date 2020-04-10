@@ -79,7 +79,7 @@ int main(int argc,char** argv)
 		for(float y=plot_ymin;y<plot_ymax;y+=tile_length) tile_count++;
 	}
 	float tile_coords[tile_count][4];
-	int tile_pointcount[tile_count];
+	unsigned long int tile_pointcount[tile_count] = {0};
 	int c = 0;
 	for(float x=plot_xmin;x<plot_xmax;x+=sqrt(tile_area))
 	{
