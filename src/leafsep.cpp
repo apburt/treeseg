@@ -91,7 +91,12 @@ void gmmByCluster(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, arma:
 		e2 = eigenvalues(1) / esum;
 		e3 = eigenvalues(0) / esum;
 		//UGLY:
-		if(e3 == 0) e3 = e2 * 0.01;
+		if (e1 == 0)
+			e1 = 0.001;
+		if (e2 == 0)
+			e2 = 0.001;
+		if (e3 == 0)
+			e3 = 0.001;
 		//
 		features[0] = e3;
 		features[1] = e1 - e2;
