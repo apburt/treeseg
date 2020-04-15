@@ -682,7 +682,7 @@ void correctStem(pcl::PointCloud<PointTreeseg>::Ptr &stem, float nnearest, float
 			break;
 		}
 	}
-	if(broken == false) spatial1DFilter(stem,"z",min[2],zstop,corrected);
+	if(broken == true) spatial1DFilter(stem,"z",min[2],zstop,corrected);
 	else spatial1DFilter(stem,"z",min[2],max[2]-zstep,corrected);
 }
 
