@@ -508,6 +508,11 @@ void fitCylinder(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, bool f
 			cyl.dy = coeff.values[4];
 			cyl.dz = coeff.values[5];
 			cyl.rad = coeff.values[6];
+			
+			cyl.steprad = 0;//init these to zero as we are not always setting in these in cylinderDiagnostics
+			cyl.stepcov = 0;
+			cyl.radratio = 0;
+			
 			cyl.cloud = cloud;
 			cyl.inliers = inliers;
 			if(cyl.rad > 0 && finite == false && diagnostics == false) cyl.ismodel = true;
