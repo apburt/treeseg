@@ -108,7 +108,7 @@ int main (int argc, char *argv[])
 		Eigen::Vector4f gvector(eigenvectors(0,2),eigenvectors(1,2),0,0);
 		Eigen::Vector4f cvector(eigenvectors(0,2),eigenvectors(1,2),eigenvectors(2,2),0);
 		float angle = pcl::getAngle3D(gvector,cvector) * (180/M_PI);
-		if(angle >= (90 - anglemax) || angle <= (90 + anglemax)) idx.push_back(j);
+		if(angle >= (90 - anglemax) && angle <= (90 + anglemax)) idx.push_back(j);
 	}
 	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> pca;
         for(int k=0;k<idx.size();k++) pca.push_back(cyls[idx[k]]);	
