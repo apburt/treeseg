@@ -827,93 +827,122 @@ void removeFarRegions(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters)
 	for(int k=0;k<remove_list.size();k++) clusters.erase(clusters.begin()+remove_list[k]);
 }
 
-void buildTree(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, pcl::PointCloud<PointTreeseg>::Ptr &tree)
+void buildTree_n(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, pcl::PointCloud<PointTreeseg>::Ptr &tree)
 {
 	pcl::PointCloud<PointTreeseg>::Ptr tmpcloud(new pcl::PointCloud<PointTreeseg>);
-	for(int a=0;a<clusters.size();a++) *tmpcloud += *clusters[a];
-	std::vector<std::vector<float>> nndata = dNNz(tmpcloud,50,2); //careful here
+	for (int a = 0; a < clusters.size(); a++)
+		*tmpcloud += *clusters[a];
+	std::vector<std::vector<float>> nndata = dNNz(tmpcloud, 50, 2); //careful here //list of nn distances with the coresponding z heights at step size of 2
+	std::cout << "Done DNNz" << std::endl;
+
+	std::vector<float> clusterlengths;			   // all clusterlengths
+	std::vector<Eigen::Vector4f> clustervectors;   // all clustervectors
+	std::vector<Eigen::Vector4f> clustercentroids; // all cluster centroids
+
+	std::vector<Eigen::Vector4f> clustermins; // all cluster centroids
+	std::vector<Eigen::Vector4f> clustermaxs; // all cluster centroids
+
+	std::vector<int> clusteridxs; // indexs of unused clusters
+
+	for (int i = 0; i < clusters.size(); i++) // calculate all cluster variables first rather than in iterative steps below
+	{
+		Eigen::Vector4f clustercentroid;
+		Eigen::Matrix3f clustercovariancematrix;
+		Eigen::Matrix3f clustereigenvectors;
+		Eigen::Vector3f clustereigenvalues;
+		pcl::PointCloud<PointTreeseg>::Ptr clustertransformed(new pcl::PointCloud<PointTreeseg>);
+		Eigen::Vector4f clustermin, clustermax;
+		float clusterlength;
+		computePCA(clusters[i], clustercentroid, clustercovariancematrix, clustereigenvectors, clustereigenvalues);
+		Eigen::Vector3f clusterpoint(clustercentroid[0], clustercentroid[1], clustercentroid[2]);
+		Eigen::Vector3f clusterdirection(clustereigenvectors(0, 2), clustereigenvectors(1, 2), clustereigenvectors(2, 2));
+		Eigen::Affine3f clustertransform;
+		Eigen::Vector3f clusterworld(0, clusterdirection[2], -clusterdirection[1]);
+		clusterdirection.normalize();
+		pcl::getTransformationFromTwoUnitVectorsAndOrigin(clusterworld, clusterdirection, clusterpoint, clustertransform);
+		pcl::transformPointCloud(*clusters[i], *clustertransformed, clustertransform);
+		pcl::getMinMax3D(*clustertransformed, clustermin, clustermax);
+		clusterlength = clustermax[2] - clustermin[2];
+
+		pcl::getMinMax3D(*clusters[i], clustermin, clustermax); //get min max of untransformed
+
+		Eigen::Vector4f clustervector(clustereigenvectors(0, 2), clustereigenvectors(1, 2), clustereigenvectors(2, 2), 0);
+
+		clusterlengths.push_back(clusterlength);
+		clustervectors.push_back(clustervector);
+		clustercentroids.push_back(clustercentroid);
+		clustermins.push_back(clustermin);
+		clustermaxs.push_back(clustermax);
+
+		clusteridxs.push_back(i);
+	}
+
+	std::cout << "Done transforming clusters" << std::endl;
+
 	int idx = findPrincipalCloudIdx(clusters);
 	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> treeclusters;
-	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> outer;
+	std::vector<int> outeridxs;// indexes of clusters in outer edge of tree
+
 	treeclusters.push_back(clusters[idx]);
-	outer.push_back(clusters[idx]);
-	clusters.erase(clusters.begin()+idx);
+	outeridxs.push_back(idx);
+	clusteridxs.erase(clusteridxs.begin() + idx); // remove primary cluster
+
 	int count = 0;
 	bool donesomething = true;
-	while(donesomething == true)
+	while (donesomething == true)
 	{
-		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> tmp;
-		for(int i=0;i<outer.size();i++)
+		std::vector<int> tmpidxs;
+
+		for (int i = 0; i < outeridxs.size(); i++)
 		{
 			std::vector<int> member;
-			Eigen::Vector4f outercentroid;
-			Eigen::Matrix3f outercovariancematrix;
-			Eigen::Matrix3f outereigenvectors;
-			Eigen::Vector3f outereigenvalues;
-			pcl::PointCloud<PointTreeseg>::Ptr outertransformed(new pcl::PointCloud<PointTreeseg>);
-			Eigen::Vector4f outermin,outermax;
-			float outerlength;
-			computePCA(outer[i],outercentroid,outercovariancematrix,outereigenvectors,outereigenvalues);
-			Eigen::Vector3f outerpoint(outercentroid[0],outercentroid[1],outercentroid[2]);
-			Eigen::Vector3f outerdirection(outereigenvectors(0,2),outereigenvectors(1,2),outereigenvectors(2,2));
-			Eigen::Affine3f outertransform;
-			Eigen::Vector3f outerworld(0,outerdirection[2],-outerdirection[1]);
-			outerdirection.normalize();
-			pcl::getTransformationFromTwoUnitVectorsAndOrigin(outerworld,outerdirection,outerpoint,outertransform);
-			pcl::transformPointCloud(*outer[i],*outertransformed,outertransform);
-			pcl::getMinMax3D(*outertransformed,outermin,outermax);
-			outerlength = outermax[2] - outermin[2];
-			for(int j=0;j<clusters.size();j++)
+			for (int j = 0; j < clusteridxs.size(); j++)
 			{
-				float d;
-				Eigen::Vector4f clustercentroid;
-				if(outer[i]->points.size() >= clusters[j]->points.size()) d = minDistBetweenClouds(outer[i],clusters[j]);
-				else d = minDistBetweenClouds(clusters[j],outer[i]);
-				pcl::compute3DCentroid(*clusters[j],clustercentroid);
-				float mind = interpolatedNNZ((clustercentroid[2]+outercentroid[2])/2,nndata,true);
-				if(d <= mind)
+				if (clusterlengths[clusteridxs[j]] < clusterlengths[outeridxs[i]]) // compare cluster length along first PCA
 				{
-					Eigen::Matrix3f clustercovariancematrix;
-					Eigen::Matrix3f clustereigenvectors;
-					Eigen::Vector3f clustereigenvalues;
-					pcl::PointCloud<PointTreeseg>::Ptr clustertransformed(new pcl::PointCloud<PointTreeseg>);
-					Eigen::Vector4f clustermin,clustermax;
-					float clusterlength;
-					computePCA(clusters[j],clustercentroid,clustercovariancematrix,clustereigenvectors,clustereigenvalues);
-					Eigen::Vector3f clusterpoint(clustercentroid[0],clustercentroid[1],clustercentroid[2]);
-					Eigen::Vector3f clusterdirection(clustereigenvectors(0,2),clustereigenvectors(1,2),clustereigenvectors(2,2));
-					Eigen::Affine3f clustertransform;
-					Eigen::Vector3f clusterworld(0,clusterdirection[2],-clusterdirection[1]);
-					clusterdirection.normalize();
-					pcl::getTransformationFromTwoUnitVectorsAndOrigin(clusterworld,clusterdirection,clusterpoint,clustertransform);
-					pcl::transformPointCloud(*clusters[j],*clustertransformed,clustertransform);
-					pcl::getMinMax3D(*clustertransformed,clustermin,clustermax);
-					clusterlength = clustermax[2] - clustermin[2];
-					Eigen::Vector4f outervector(outereigenvectors(0,2),outereigenvectors(1,2),outereigenvectors(2,2),0);
-					Eigen::Vector4f clustervector(clustereigenvectors(0,2),clustereigenvectors(1,2),clustereigenvectors(2,2),0);
-					float angle = pcl::getAngle3D(outervector,clustervector) * (180/M_PI);
-					if(clusterlength < outerlength) member.push_back(j);				
+					float mind = interpolatedNNZ((clustercentroids[clusteridxs[j]][2] + clustercentroids[outeridxs[i]][2]) / 2, nndata, true);
+
+					// perform an intersecting3dbbox check with an extra buffer distance of mind
+					if (clustermins[outeridxs[i]][0] <= (clustermaxs[clusteridxs[j]][0] + mind) && (clustermaxs[outeridxs[i]][0] + mind) >= clustermins[clusteridxs[j]][0] &&
+						clustermins[outeridxs[i]][1] <= (clustermaxs[clusteridxs[j]][1] + mind) && (clustermaxs[outeridxs[i]][1] + mind) >= clustermins[clusteridxs[j]][1] &&
+						clustermins[outeridxs[i]][2] <= (clustermaxs[clusteridxs[j]][2] + mind) && (clustermaxs[outeridxs[i]][2] + mind) >= clustermins[clusteridxs[j]][2]) 
+					{
+						// if bounding boxes are closer than mind then do min distance check
+						float d;
+						if (clusters[outeridxs[i]]->points.size() >= clusters[clusteridxs[j]]->points.size())
+							d = minDistBetweenClouds(clusters[outeridxs[i]], clusters[clusteridxs[j]]); // this takes the most time so we want to minimize this check by doing it last
+						else
+							d = minDistBetweenClouds(clusters[clusteridxs[j]], clusters[outeridxs[i]]);
+						if (d <= mind)
+						{
+							member.push_back(j); // save j for adding
+						}
+					}
 				}
 			}
-			std::sort(member.begin(),member.end(),std::greater<int>());
-			for(int k=0;k<member.size();k++)
+
+			std::sort(member.begin(), member.end(), std::greater<int>());
+			for (int k = 0; k < member.size(); k++)
 			{
-				tmp.push_back(clusters[member[k]]);
-				clusters.erase(clusters.begin()+member[k]);
+				tmpidxs.push_back(clusteridxs[member[k]]);			// add clusters idxs refernce to by j
+				clusteridxs.erase(clusteridxs.begin() + member[k]); // remove clusters reference to by j form the valid idxs
 			}
 		}
-		if(tmp.size() !=0)
+		if (tmpidxs.size() != 0)
 		{
-			outer.clear();
-			for(int m=0;m<tmp.size();m++)
+			outeridxs.clear();
+			for (int m = 0; m < tmpidxs.size(); m++)
 			{
-				treeclusters.push_back(tmp[m]);
-				outer.push_back(tmp[m]);
+				treeclusters.push_back(clusters[tmpidxs[m]]); // add to tree
+				outeridxs.push_back(tmpidxs[m]);			  // get next set of outers
 			}
 		}
-		else donesomething = false;
+		else
+			donesomething = false;
 		count++;
 		std::cout << "." << std::flush;
 	}
-	for(int n=0;n<treeclusters.size();n++) *tree += *treeclusters[n];
+
+	for (int n = 0; n < treeclusters.size(); n++)
+		*tree += *treeclusters[n];
 }
