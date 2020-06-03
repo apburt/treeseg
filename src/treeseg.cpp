@@ -851,6 +851,7 @@ void buildTree(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, pcl::P
 
 	std::vector<Eigen::Vector4f> clustermins; // all cluster centroids
 	std::vector<Eigen::Vector4f> clustermaxs; // all cluster centroids
+	std::vector<pcl::KdTreeFLANN<PointTreeseg>> kdtrees; // all cluster kdtrees
 
 	std::vector<int> clusteridxs; // indexs of unused clusters
 
@@ -878,11 +879,15 @@ void buildTree(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, pcl::P
 
 		Eigen::Vector4f clustervector(clustereigenvectors(0, 2), clustereigenvectors(1, 2), clustereigenvectors(2, 2), 0);
 
+		pcl::KdTreeFLANN<PointTreeseg> tree;
+		tree.setInputCloud(clusters[i]);
+
 		clusterlengths.push_back(clusterlength);
 		clustervectors.push_back(clustervector);
 		clustercentroids.push_back(clustercentroid);
 		clustermins.push_back(clustermin);
 		clustermaxs.push_back(clustermax);
+		kdtrees.push_back(tree);
 
 		clusteridxs.push_back(i);
 	}
@@ -920,9 +925,9 @@ void buildTree(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, pcl::P
 						// if bounding boxes are closer than mind then do min distance check
 						float d;
 						if (clusters[outeridxs[i]]->points.size() >= clusters[clusteridxs[j]]->points.size())
-							d = minDistBetweenClouds(clusters[outeridxs[i]], clusters[clusteridxs[j]]); // this takes the most time so we want to minimize this check by doing it last
+							d = minDistBetweenClouds(clusters[outeridxs[i]], clusters[clusteridxs[j]],kdtrees[outeridxs[i]]); // this takes the most time so we want to minimize this check by doing it last
 						else
-							d = minDistBetweenClouds(clusters[clusteridxs[j]], clusters[outeridxs[i]]);
+							d = minDistBetweenClouds(clusters[clusteridxs[j]], clusters[outeridxs[i]]),kdtrees[clusteridxs[j]];
 						if (d <= mind)
 						{
 							member.push_back(j); // save j for adding
