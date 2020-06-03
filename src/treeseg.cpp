@@ -184,10 +184,15 @@ std::vector<std::vector<int>> nNearestIdx(pcl::PointCloud<PointTreeseg>::Ptr &cl
 
 float minDistBetweenClouds(pcl::PointCloud<PointTreeseg>::Ptr &a, pcl::PointCloud<PointTreeseg>::Ptr &b)
 {
-	//assuming a is the larger of the two clouds
-	float distance = std::numeric_limits<float>::infinity();
 	pcl::KdTreeFLANN<PointTreeseg> kdtree;
 	kdtree.setInputCloud(a);
+	return minDistBetweenClouds(a,b,kdtree);
+}
+
+float minDistBetweenClouds(pcl::PointCloud<PointTreeseg>::Ptr &a, pcl::PointCloud<PointTreeseg>::Ptr &b, pcl::KdTreeFLANN<PointTreeseg> &kdtree)
+{
+	//assuming a is the larger of the two clouds
+	float distance = std::numeric_limits<float>::infinity();
 	int K = 1;
 	for(pcl::PointCloud<PointTreeseg>::iterator it=b->begin();it!=b->end();it++)
 	{
