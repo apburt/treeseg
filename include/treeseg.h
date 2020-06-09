@@ -32,6 +32,7 @@
 #include <pcl/point_cloud.h>
 #include <pcl/PointIndices.h>
 
+#include <pcl/kdtree/kdtree_flann.h>
 struct treeparams
 {
 	float x,y;
@@ -62,6 +63,7 @@ std::vector<float> dNN(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest);
 std::vector<std::vector<float>> dNNz(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, float zstep);
 std::vector<int> nearestIdx(pcl::PointCloud<PointTreeseg>::Ptr &searchpoints, pcl::PointCloud<PointTreeseg>::Ptr &cloud);
 
+float minDistBetweenClouds(pcl::PointCloud<PointTreeseg>::Ptr &a, pcl::PointCloud<PointTreeseg>::Ptr &b, pcl::KdTreeFLANN<PointTreeseg> &kdtree);
 float minDistBetweenClouds(pcl::PointCloud<PointTreeseg>::Ptr &a, pcl::PointCloud<PointTreeseg>::Ptr &b);
 
 void downsample(pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered);
