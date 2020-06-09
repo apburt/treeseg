@@ -33,6 +33,7 @@
 #include <pcl/PointIndices.h>
 
 #include <pcl/kdtree/kdtree_flann.h>
+
 struct treeparams
 {
 	float x,y;

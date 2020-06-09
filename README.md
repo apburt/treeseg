@@ -60,6 +60,7 @@ Below is an example usage of the treeseg binaries:
 * **Mathias Disney**
 * **Kim Calders**
 * **Matheus Boni Vicari**
+* **Tony Peter**
 
 ## License
 

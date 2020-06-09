@@ -38,6 +38,7 @@
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/segmentation/region_growing.h>
 #include <pcl/segmentation/sac_segmentation.h>
+#include <pcl/octree/octree.h>
 
 std::vector<std::string> getFileID(char *fname)
 {
@@ -212,10 +213,28 @@ float minDistBetweenClouds(pcl::PointCloud<PointTreeseg>::Ptr &a, pcl::PointClou
 
 void downsample(pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered)
 {
-	pcl::VoxelGrid<PointTreeseg> downsample;
-	downsample.setInputCloud(original);
-	downsample.setLeafSize(edgelength,edgelength,edgelength);
-	downsample.filter(*filtered);
+	//downsample by octree - https://github.com/tpet93/treeseg/commit/a177231cc8bfc9db52a8dd3ea8caa06e936cf4e9
+	//(avoids integer overflow issue)
+	//
+	//note: leaf nodes are the same size as via VoxelGrid, but their arrangement is optimised:
+	//filtered point cloud will likely have a lower point count than via VoxelGridi.
+	//
+	pcl::octree::OctreePointCloudVoxelCentroid<PointTreeseg> octree(edgelength);
+	octree.setInputCloud(original);
+	octree.defineBoundingBox();
+	octree.addPointsFromInputCloud();	
+	pcl::PointCloud<PointTreeseg>::VectorType centroids;
+	octree.getVoxelCentroids(centroids);
+	filtered->points.assign(centroids.begin(),centroids.end());
+	filtered->width = centroids.size();
+	filtered->height = 1;
+	//
+	//downsample by voxel grid
+	//
+	//pcl::VoxelGrid<PointTreeseg> downsample;
+	//downsample.setInputCloud(original);
+	//downsample.setLeafSize(edgelength,edgelength,edgelength);
+	//downsample.filter(*filtered);
 }
 
 void extractIndices(pcl::PointCloud<PointTreeseg>::Ptr &cloud, pcl::PointIndices::Ptr &inliers, bool invert, pcl::PointCloud<PointTreeseg>::Ptr filtered)
