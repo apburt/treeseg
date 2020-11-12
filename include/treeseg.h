@@ -75,7 +75,8 @@ int findClosestIdx(pcl::PointCloud<PointTreeseg>::Ptr &cloud, std::vector<pcl::P
 void spatial1DFilter(pcl::PointCloud<PointTreeseg>::Ptr &original, std::string dimension, float min, float max, pcl::PointCloud<PointTreeseg>::Ptr &filtered);
 void spatial3DCylinderFilter(pcl::PointCloud<PointTreeseg>::Ptr &original, cylinder cyl, pcl::PointCloud<PointTreeseg>::Ptr &filtered);
 
-std::vector<std::vector<float>> getDemAndSlice(pcl::PointCloud<PointTreeseg>::Ptr &plot, float resolution, float zmin, float zmax, pcl::PointCloud<PointTreeseg>::Ptr &slice);
+bool sortCloudZ(PointTreeseg p1, PointTreeseg p2);
+std::vector<std::vector<float>> getDemAndSlice(pcl::PointCloud<PointTreeseg>::Ptr &plot, float resolution, float percentile, float zmin, float zmax, pcl::PointCloud<PointTreeseg>::Ptr &slice);
 
 void computePCA(pcl::PointCloud<PointTreeseg>::Ptr &cloud, Eigen::Vector4f &centroid, Eigen::Matrix3f &covariancematrix, Eigen::Matrix3f &eigenvectors, Eigen::Vector3f &eigenvalues);
 void estimateNormals(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, pcl::PointCloud<pcl::Normal>::Ptr &normals);

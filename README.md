@@ -48,7 +48,7 @@ Below is an example usage of the treeseg binaries:
 * plotcoords ../matrix/ > FGC01_coords.dat
 * rxp2pcd ../ FGC01_coords.dat 25 15 FGC01
 * downsample 0.04 FGC01.tile.*.pcd
-* getdemslice 2 3 6 FGC01.tile.downsample.*.pcd
+* getdemslice 2 2.5 3 6 FGC01.tile.downsample.*.pcd
 * findstems 15 0.2 2 ../FGC01_coords.dat ../FGC01.slice.pcd
 * segmentstem 12.5 ../clusters/FGC01.cluster.*.pcd ../FGC01.tile.downsample.*.pcd
 * getcrownvolume ../stems/FGC01.stem.*.pcd ../FGC01.tile.downsample.*.pcd 

@@ -347,7 +347,12 @@ std::vector<std::vector<float>> dNNz(pcl::PointCloud<PointTreeseg>::Ptr &cloud, 
 	return results;
 }
 
-std::vector<std::vector<float>> getDemAndSlice(pcl::PointCloud<PointTreeseg>::Ptr &plot, float resolution, float zmin, float zmax, pcl::PointCloud<PointTreeseg>::Ptr &slice)
+bool sortCloudZ(PointTreeseg p1, PointTreeseg p2)
+{
+	return p1.z < p2.z;
+}
+
+std::vector<std::vector<float>> getDemAndSlice(pcl::PointCloud<PointTreeseg>::Ptr &plot, float resolution, float percentile, float zmin, float zmax, pcl::PointCloud<PointTreeseg>::Ptr &slice)
 {
 	std::vector<std::vector<float>> dem;
 	std::vector<float> result;
@@ -362,13 +367,14 @@ std::vector<std::vector<float>> getDemAndSlice(pcl::PointCloud<PointTreeseg>::Pt
 		for(float y=plotmin[1];y<plotmax[1];y+=resolution)
 		{
 			spatial1DFilter(tmpcloud,"y",y,y+resolution,tile);
-			Eigen::Vector4f tilemin,tilemax;
-			pcl::getMinMax3D(*tile,tilemin,tilemax);
+			std::sort(tile->points.begin(),tile->points.end(),sortCloudZ);
+			int idx = (percentile / 100) * tile->points.size();
+			float ground = tile->points[idx].z;
 			result.push_back(x);
 			result.push_back(y);
-			result.push_back(tilemin[2]);
+			result.push_back(ground);
 			dem.push_back(result);
-			spatial1DFilter(tile,"z",tilemin[2]+zmin,tilemin[2]+zmax,tileslice);
+			spatial1DFilter(tile,"z",ground+zmin,ground+zmax,tileslice);
 			*slice += *tileslice;
 			result.clear();
 			tile->clear();
