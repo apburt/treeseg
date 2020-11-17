@@ -3,7 +3,7 @@
 *
 * MIT License
 *
-* Copyright 2020 Andrew Burt - a.burt@ucl.ac.uk
+* Copyright 2017-2020 Andrew Burt - a.burt@ucl.ac.uk
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to
@@ -31,7 +31,6 @@
 
 #include <pcl/point_cloud.h>
 #include <pcl/PointIndices.h>
-
 #include <pcl/kdtree/kdtree_flann.h>
 
 struct treeparams
@@ -56,51 +55,68 @@ struct cylinder
         pcl::PointCloud<PointTreeseg>::Ptr inliers;
 };
 
+//File IO
+
+int getTilesStartIdx(int argc, char *argv[]);
 std::vector<std::string> getFileID(char *fname);
 void readTiles(int argc, char *argv[], pcl::PointCloud<PointTreeseg>::Ptr &cloud);
-int getTilesStartIdx(int argc, char *argv[]);
+void writeClouds(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> clusters, std::string fname, bool doPCA);
+
+//Nearest neighbour analysis
 
 std::vector<float> dNN(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest);
 std::vector<std::vector<float>> dNNz(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, float zstep);
-std::vector<int> nearestIdx(pcl::PointCloud<PointTreeseg>::Ptr &searchpoints, pcl::PointCloud<PointTreeseg>::Ptr &cloud);
+float interpolatedNNZ(float x, std::vector<std::vector<float>> nndata, bool extrapolate);
 
-float minDistBetweenClouds(pcl::PointCloud<PointTreeseg>::Ptr &a, pcl::PointCloud<PointTreeseg>::Ptr &b, pcl::KdTreeFLANN<PointTreeseg> &kdtree);
-float minDistBetweenClouds(pcl::PointCloud<PointTreeseg>::Ptr &a, pcl::PointCloud<PointTreeseg>::Ptr &b);
+//Downsampling
 
 void downsample(pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered);
 
-void extractIndices(pcl::PointCloud<PointTreeseg>::Ptr &cloud, pcl::PointIndices::Ptr &inliers, bool invert, pcl::PointCloud<PointTreeseg>::Ptr filtered);
-int findClosestIdx(pcl::PointCloud<PointTreeseg>::Ptr &cloud, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, bool biggest);
+//Spatial filters
 
 void spatial1DFilter(pcl::PointCloud<PointTreeseg>::Ptr &original, std::string dimension, float min, float max, pcl::PointCloud<PointTreeseg>::Ptr &filtered);
 void spatial3DCylinderFilter(pcl::PointCloud<PointTreeseg>::Ptr &original, cylinder cyl, pcl::PointCloud<PointTreeseg>::Ptr &filtered);
 
-bool sortCloudZ(PointTreeseg p1, PointTreeseg p2);
-std::vector<std::vector<float>> getDemAndSlice(pcl::PointCloud<PointTreeseg>::Ptr &plot, float resolution, float percentile, float zmin, float zmax, pcl::PointCloud<PointTreeseg>::Ptr &slice);
-
-void computePCA(pcl::PointCloud<PointTreeseg>::Ptr &cloud, Eigen::Vector4f &centroid, Eigen::Matrix3f &covariancematrix, Eigen::Matrix3f &eigenvectors, Eigen::Vector3f &eigenvalues);
-void estimateNormals(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, pcl::PointCloud<pcl::Normal>::Ptr &normals);
+//Clustering
 
 void euclideanClustering(pcl::PointCloud<PointTreeseg>::Ptr &cloud, float dmax, int nmin, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters);
+
+//Principal component analysis
+
+void computePCA(pcl::PointCloud<PointTreeseg>::Ptr &cloud, Eigen::Vector4f &centroid, Eigen::Matrix3f &covariancematrix, Eigen::Matrix3f &eigenvectors, Eigen::Vector3f &eigenvalues);
+
+//Surface normals
+
+void estimateNormals(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, pcl::PointCloud<pcl::Normal>::Ptr &normals);
+
+//Segmentation
+
 void regionSegmentation(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, int nmin, float smoothness, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions);
 
-void writeClouds(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> clusters, std::string fname, bool doPCA);
+//Shape fitting
 
+void fitPlane(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, pcl::PointIndices::Ptr &inliers);
 std::vector<float> fitCircle(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest);
 void fitCylinder(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, bool finite, bool diagnostics, cylinder &cyl);
 void cylinderDiagnostics(cylinder &cyl, int nnearest);
-void fitPlane(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, pcl::PointIndices::Ptr &inliers);
 
+//Generic
+
+bool sortCol(const std::vector<int>& v1, const std::vector<int>& v2);
+bool sortCloudByZ(PointTreeseg p1, PointTreeseg p2);
+std::vector<int> nearestIdx(pcl::PointCloud<PointTreeseg>::Ptr &searchpoints, pcl::PointCloud<PointTreeseg>::Ptr &cloud);
+int findClosestIdx(pcl::PointCloud<PointTreeseg>::Ptr &cloud, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, bool biggest);
+int findPrincipalCloudIdx(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds);
+void extractIndices(pcl::PointCloud<PointTreeseg>::Ptr &cloud, pcl::PointIndices::Ptr &inliers, bool invert, pcl::PointCloud<PointTreeseg>::Ptr filtered);
+float minDistBetweenClouds(pcl::PointCloud<PointTreeseg>::Ptr &a, pcl::PointCloud<PointTreeseg>::Ptr &b);
+float minDistBetweenClouds(pcl::PointCloud<PointTreeseg>::Ptr &a, pcl::PointCloud<PointTreeseg>::Ptr &b, pcl::KdTreeFLANN<PointTreeseg> &kdtree);
 bool intersectionTest3DBox(Eigen::Vector4f amin, Eigen::Vector4f amax, Eigen::Vector4f bmin, Eigen::Vector4f bmax);
 void catIntersectingClouds(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds);
 
+//treeseg specific
+
+std::vector<std::vector<float>> getDemAndSlice(pcl::PointCloud<PointTreeseg>::Ptr &plot, float resolution, float percentile, float zmin, float zmax, pcl::PointCloud<PointTreeseg>::Ptr &slice);
 void correctStem(pcl::PointCloud<PointTreeseg>::Ptr &stem, float nnearest, float zstart, float zstep, float stepcovmax, float radchangemin, pcl::PointCloud<PointTreeseg>::Ptr &corrected);
-
-treeparams getTreeParams(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, float zstep, float diffmax);
-
-bool sortCol(const std::vector<int>& v1, const std::vector<int>& v2);
-int findPrincipalCloudIdx(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds);
-
-float interpolatedNNZ(float x, std::vector<std::vector<float>> nndata, bool extrapolate);
 void removeFarRegions(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters);
 void buildTree(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, pcl::PointCloud<PointTreeseg>::Ptr &tree);
+treeparams getTreeParams(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, float zstep, float diffmax);
