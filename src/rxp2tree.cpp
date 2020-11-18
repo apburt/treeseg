@@ -46,7 +46,7 @@ class importer : public scanlib::pointcloud
 		}
 };
 
-int main(int argc,char** argv)
+int main(int argc, char **argv)
 {
 	std::string top_dir = argv[1];
 	if(top_dir[top_dir.length()-1] != '/') top_dir = top_dir + "/";

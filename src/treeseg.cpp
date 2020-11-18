@@ -42,35 +42,12 @@
 
 //File IO
 
-int getTilesStartIdx(int argc, char *argv[])
+std::vector<std::string> getFileID(std::string filename)
 {
-	int start_tiles;
-	for(int i=0;i<argc;i++)
-	{
-		std::string filename(argv[i]);
-		std::vector<std::string> tmp1,tmp2;
-		boost::split(tmp1,filename,boost::is_any_of("/"));
-		boost::split(tmp2,tmp1[tmp1.size()-1],boost::is_any_of("."));
-		if(tmp2.size() > 1)
-		{
-			if(tmp2[1] == "tile")
-			{
-				start_tiles = i;
-				break;
-			}
-
-		}
-	}
-	return start_tiles;
-}
-
-std::vector<std::string> getFileID(char *fname)
-{
-	//Fairly inflexible naming convention:
+	//Inflexible naming convention:
 	//From rxp2pcd: ./DIR/PLOT.tile.number.pcd (plot can include hyphen e.g., FGC01 or FGC-01)
 	//From downsample/thin: ./DIR/PLOT.tile.downsample(thin).number.pcd
 	//Onwards: ./DIR/PLOT.X.number.pcd
-	std::string filename(fname);
 	std::string pid,tid;
 	std::vector<std::string> info;
 	std::vector<std::string> tmp1,tmp2,tmp3;
@@ -95,13 +72,13 @@ std::vector<std::string> getFileID(char *fname)
 	}
 }
 
-void readTiles(int argc, char *argv[], pcl::PointCloud<PointTreeseg>::Ptr &cloud)
+void readTiles(const std::vector<std::string> &args, pcl::PointCloud<PointTreeseg>::Ptr &cloud)
 {
 	pcl::PCDReader reader;
 	pcl::PointCloud<PointTreeseg>::Ptr tmp(new pcl::PointCloud<PointTreeseg>);
-	for(int i=0;i<argc;i++)
+	for(int i=0;i<args.size();i++)
 	{
-		std::string filename(argv[i]);
+		std::string filename = args[i];
 		std::vector<std::string> tmp1,tmp2;
 		boost::split(tmp1,filename,boost::is_any_of("/"));
 		boost::split(tmp2,tmp1[tmp1.size()-1],boost::is_any_of("."));
@@ -109,7 +86,7 @@ void readTiles(int argc, char *argv[], pcl::PointCloud<PointTreeseg>::Ptr &cloud
 		{
 			if(tmp2[1] == "tile")
 			{
-				reader.read(argv[i],*tmp);
+				reader.read(args[i],*tmp);
 				*cloud += *tmp;
 				tmp->clear();	
 			}
@@ -117,7 +94,29 @@ void readTiles(int argc, char *argv[], pcl::PointCloud<PointTreeseg>::Ptr &cloud
 	}
 }
 
-void writeClouds(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> clouds, std::string fname, bool doPCA)
+int getTilesStartIdx(const std::vector<std::string> &args)
+{
+	int start_tiles;
+	for(int i=0;i<args.size();i++)
+	{
+		std::string filename = args[i];
+		std::vector<std::string> tmp1,tmp2;
+		boost::split(tmp1,filename,boost::is_any_of("/"));
+		boost::split(tmp2,tmp1[tmp1.size()-1],boost::is_any_of("."));
+		if(tmp2.size() > 1)
+		{
+			if(tmp2[1] == "tile")
+			{
+				start_tiles = i;
+				break;
+			}
+
+		}
+	}
+	return start_tiles;
+}
+
+void writeClouds(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, std::string fname, bool doPCA)
 {
 	pcl::PCDWriter writer;
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr out(new pcl::PointCloud<pcl::PointXYZRGB>);
@@ -143,7 +142,7 @@ void writeClouds(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> clouds, std::st
 
 //Nearest neighbour analysis
 
-std::vector<float> dNN(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest)
+std::vector<float> dNN(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest)
 {
 	std::vector<float> dist;
 	pcl::KdTreeFLANN<PointTreeseg> tree;
@@ -177,7 +176,7 @@ std::vector<float> dNN(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest)
 	return results;
 }
 
-std::vector<std::vector<float>> dNNz(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, float zstep)
+std::vector<std::vector<float>> dNNz(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, float zstep)
 {
 	std::vector<std::vector<float>> results;
 	Eigen::Vector4f min,max;
@@ -201,7 +200,7 @@ std::vector<std::vector<float>> dNNz(pcl::PointCloud<PointTreeseg>::Ptr &cloud, 
 	return results;
 }
 
-float interpolatedNNZ(float x, std::vector<std::vector<float>> nndata, bool extrapolate)
+float interpolatedNNZ(float x, const std::vector<std::vector<float>> &nndata, bool extrapolate)
 {
 	std::vector<float> xData;
 	std::vector<float> yData;
@@ -229,14 +228,8 @@ float interpolatedNNZ(float x, std::vector<std::vector<float>> nndata, bool extr
 
 //Downsampling
 
-void downsample(pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered)
+void downsample(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered)
 {
-	//downsample by octree - https://github.com/tpet93/treeseg/commit/a177231cc8bfc9db52a8dd3ea8caa06e936cf4e9
-	//(avoids integer overflow issue)
-	//
-	//note: leaf nodes are the same size as via VoxelGrid, but their arrangement is optimised:
-	//filtered point cloud will likely have a lower point count than via VoxelGridi.
-	//
 	pcl::octree::OctreePointCloudVoxelCentroid<PointTreeseg> octree(edgelength);
 	octree.setInputCloud(original);
 	octree.defineBoundingBox();
@@ -246,9 +239,6 @@ void downsample(pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, 
 	filtered->points.assign(centroids.begin(),centroids.end());
 	filtered->width = centroids.size();
 	filtered->height = 1;
-	//
-	//downsample by voxel grid
-	//
 	//pcl::VoxelGrid<PointTreeseg> downsample;
 	//downsample.setInputCloud(original);
 	//downsample.setLeafSize(edgelength,edgelength,edgelength);
@@ -257,7 +247,7 @@ void downsample(pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, 
 
 //Spatial Filters
 
-void spatial1DFilter(pcl::PointCloud<PointTreeseg>::Ptr &original, std::string dimension, float min, float max, pcl::PointCloud<PointTreeseg>::Ptr &filtered)
+void spatial1DFilter(const pcl::PointCloud<PointTreeseg>::Ptr &original, std::string dimension, float min, float max, pcl::PointCloud<PointTreeseg>::Ptr &filtered)
 {
 	pcl::PassThrough<PointTreeseg> pass;
 	pass.setInputCloud(original);
@@ -266,7 +256,7 @@ void spatial1DFilter(pcl::PointCloud<PointTreeseg>::Ptr &original, std::string d
 	pass.filter(*filtered);
 }
 
-void spatial3DCylinderFilter(pcl::PointCloud<PointTreeseg>::Ptr &original, cylinder cyl, pcl::PointCloud<PointTreeseg>::Ptr &filtered)
+void spatial3DCylinderFilter(const pcl::PointCloud<PointTreeseg>::Ptr &original, cylinder cyl, pcl::PointCloud<PointTreeseg>::Ptr &filtered)
 {
 	float len = 1000;
 	Eigen::Vector3f cp1(cyl.x+len*cyl.dx,cyl.y+len*cyl.dy,cyl.z+len*cyl.dz);
@@ -296,7 +286,7 @@ void spatial3DCylinderFilter(pcl::PointCloud<PointTreeseg>::Ptr &original, cylin
 
 //Clustering
 
-void euclideanClustering(pcl::PointCloud<PointTreeseg>::Ptr &cloud, float dmax, int nmin, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters)
+void euclideanClustering(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, float dmax, int nmin, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters)
 {
 	std::vector<pcl::PointIndices> indices;
 	pcl::search::KdTree<PointTreeseg>::Ptr tree(new pcl::search::KdTree<PointTreeseg>);
@@ -321,7 +311,7 @@ void euclideanClustering(pcl::PointCloud<PointTreeseg>::Ptr &cloud, float dmax, 
 
 //Principal component analysis
 
-void computePCA(pcl::PointCloud<PointTreeseg>::Ptr &cloud, Eigen::Vector4f &centroid, Eigen::Matrix3f &covariancematrix, Eigen::Matrix3f &eigenvectors, Eigen::Vector3f &eigenvalues)
+void computePCA(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, Eigen::Vector4f &centroid, Eigen::Matrix3f &covariancematrix, Eigen::Matrix3f &eigenvectors, Eigen::Vector3f &eigenvalues)
 {
 	pcl::compute3DCentroid(*cloud,centroid);
 	pcl::computeCovarianceMatrix(*cloud,centroid,covariancematrix);
@@ -330,7 +320,7 @@ void computePCA(pcl::PointCloud<PointTreeseg>::Ptr &cloud, Eigen::Vector4f &cent
 
 //Surface normals
 
-void estimateNormals(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, pcl::PointCloud<pcl::Normal>::Ptr &normals)
+void estimateNormals(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, pcl::PointCloud<pcl::Normal>::Ptr &normals)
 {
 	pcl::search::KdTree<PointTreeseg>::Ptr tree(new pcl::search::KdTree<PointTreeseg>());
 	tree->setInputCloud(cloud);
@@ -343,7 +333,7 @@ void estimateNormals(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, pc
 
 //Segmentation
 
-void regionSegmentation(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, int nmin, float smoothness, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions)
+void regionSegmentation(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, int nmin, float smoothness, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions)
 {
 	std::vector<pcl::PointIndices> indices;
 	pcl::search::KdTree<PointTreeseg>::Ptr tree(new pcl::search::KdTree<PointTreeseg> ());
@@ -373,7 +363,7 @@ void regionSegmentation(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest,
 
 //Shape fitting
 
-void fitPlane(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, pcl::PointIndices::Ptr &inliers)
+void fitPlane(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, pcl::PointIndices::Ptr &inliers)
 {
 	std::vector<float> nndata = dNN(cloud,nnearest);
 	float nndist = nndata[0];
@@ -388,7 +378,7 @@ void fitPlane(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, pcl::Poin
 	seg.segment(*inliers,*coefficients);	
 }
 
-std::vector<float> fitCircle(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest)
+std::vector<float> fitCircle(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest)
 {
 	std::vector<float> nndata;
 	nndata = dNN(cloud,nnearest);
@@ -410,7 +400,7 @@ std::vector<float> fitCircle(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnea
 	return results;
 }
 
-void fitCylinder(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, bool finite, bool diagnostics, cylinder &cyl)
+void fitCylinder(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, bool finite, bool diagnostics, cylinder &cyl)
 {
 	cyl.ismodel = false;
 	if(cloud->points.size() >= 10)
@@ -520,17 +510,17 @@ void cylinderDiagnostics(cylinder &cyl, int nnearest)
 
 //Generic
 
-bool sortCol(const std::vector<int>& v1, const std::vector<int>& v2)
+bool sortCol(const std::vector<int> &v1, const std::vector<int> &v2)
 {
         return v1[1] < v2[1];
 }
 
-bool sortCloudByZ(PointTreeseg p1, PointTreeseg p2)
+bool sortCloudByZ(const PointTreeseg &p1, const PointTreeseg &p2)
 {
 	return p1.z < p2.z;
 }
 
-std::vector<int> nearestIdx(pcl::PointCloud<PointTreeseg>::Ptr &searchpoints, pcl::PointCloud<PointTreeseg>::Ptr &cloud)
+std::vector<int> nearestIdx(const pcl::PointCloud<PointTreeseg>::Ptr &searchpoints, const pcl::PointCloud<PointTreeseg>::Ptr &cloud)
 {
 	std::vector<int> idxs;
 	pcl::KdTreeFLANN<PointTreeseg> tree;
@@ -545,7 +535,7 @@ std::vector<int> nearestIdx(pcl::PointCloud<PointTreeseg>::Ptr &searchpoints, pc
 	return idxs;
 }
 
-int findClosestIdx(pcl::PointCloud<PointTreeseg>::Ptr &cloud, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, bool biggest)
+int findClosestIdx(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, bool biggest)
 {
 	int idx = 0;
 	std::vector<std::vector<float>> data;
@@ -585,7 +575,7 @@ int findClosestIdx(pcl::PointCloud<PointTreeseg>::Ptr &cloud, std::vector<pcl::P
 	return idx;
 }
 
-int findPrincipalCloudIdx(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds)
+int findPrincipalCloudIdx(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds)
 {
 	std::vector<std::vector<int>> info;
 	pcl::PointCloud<PointTreeseg>::Ptr cloud(new pcl::PointCloud<PointTreeseg>);
@@ -609,7 +599,7 @@ int findPrincipalCloudIdx(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &cloud
 	return idx;
 }
 
-void extractIndices(pcl::PointCloud<PointTreeseg>::Ptr &cloud, pcl::PointIndices::Ptr &inliers, bool invert, pcl::PointCloud<PointTreeseg>::Ptr filtered)
+void extractIndices(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const pcl::PointIndices::Ptr &inliers, bool invert, pcl::PointCloud<PointTreeseg>::Ptr &filtered)
 {
 	pcl::ExtractIndices<PointTreeseg> extract;
 	extract.setInputCloud(cloud);
@@ -618,14 +608,14 @@ void extractIndices(pcl::PointCloud<PointTreeseg>::Ptr &cloud, pcl::PointIndices
 	extract.filter(*filtered);
 }
 
-float minDistBetweenClouds(pcl::PointCloud<PointTreeseg>::Ptr &a, pcl::PointCloud<PointTreeseg>::Ptr &b)
+float minDistBetweenClouds(const pcl::PointCloud<PointTreeseg>::Ptr &a, const pcl::PointCloud<PointTreeseg>::Ptr &b)
 {
 	pcl::KdTreeFLANN<PointTreeseg> kdtree;
 	kdtree.setInputCloud(a);
 	return minDistBetweenClouds(a,b,kdtree);
 }
 
-float minDistBetweenClouds(pcl::PointCloud<PointTreeseg>::Ptr &a, pcl::PointCloud<PointTreeseg>::Ptr &b, pcl::KdTreeFLANN<PointTreeseg> &kdtree)
+float minDistBetweenClouds(const pcl::PointCloud<PointTreeseg>::Ptr &a, const pcl::PointCloud<PointTreeseg>::Ptr &b, const pcl::KdTreeFLANN<PointTreeseg> &kdtree)
 {
 	//assuming a is the larger of the two clouds
 	float distance = std::numeric_limits<float>::infinity();
@@ -646,7 +636,7 @@ float minDistBetweenClouds(pcl::PointCloud<PointTreeseg>::Ptr &a, pcl::PointClou
 	return distance;
 }
 
-bool intersectionTest3DBox(Eigen::Vector4f amin, Eigen::Vector4f amax, Eigen::Vector4f bmin, Eigen::Vector4f bmax)
+bool intersectionTest3DBox(const Eigen::Vector4f &amin, const Eigen::Vector4f &amax, const Eigen::Vector4f &bmin, const Eigen::Vector4f &bmax)
 {
 	bool intersection = false;
 	if(amin[0] < bmax[0] && amax[0] > bmin[0] &&
@@ -701,7 +691,7 @@ void catIntersectingClouds(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clou
 
 //treeseg specific
 
-std::vector<std::vector<float>> getDemAndSlice(pcl::PointCloud<PointTreeseg>::Ptr &plot, float resolution, float percentile, float zmin, float zmax, pcl::PointCloud<PointTreeseg>::Ptr &slice)
+std::vector<std::vector<float>> getDemAndSlice(const pcl::PointCloud<PointTreeseg>::Ptr &plot, float resolution, float percentile, float zmin, float zmax, pcl::PointCloud<PointTreeseg>::Ptr &slice)
 {
 	std::vector<std::vector<float>> dem;
 	std::vector<float> result;
@@ -734,7 +724,7 @@ std::vector<std::vector<float>> getDemAndSlice(pcl::PointCloud<PointTreeseg>::Pt
 	return dem;
 }
 
-void correctStem(pcl::PointCloud<PointTreeseg>::Ptr &stem, float nnearest, float zstart, float zstep, float stepcovmax, float radchangemin, pcl::PointCloud<PointTreeseg>::Ptr &corrected)
+void correctStem(const pcl::PointCloud<PointTreeseg>::Ptr &stem, float nnearest, float zstart, float zstep, float stepcovmax, float radchangemin, pcl::PointCloud<PointTreeseg>::Ptr &corrected)
 {
 	Eigen::Vector4f min, max;
 	pcl::getMinMax3D(*stem,min,max);
@@ -817,25 +807,19 @@ void removeFarRegions(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters)
 	for(int k=0;k<remove_list.size();k++) clusters.erase(clusters.begin()+remove_list[k]);
 }
 
-void buildTree(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, pcl::PointCloud<PointTreeseg>::Ptr &tree)
+void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, pcl::PointCloud<PointTreeseg>::Ptr &tree)
 {
 	pcl::PointCloud<PointTreeseg>::Ptr tmpcloud(new pcl::PointCloud<PointTreeseg>);
-	for (int a = 0; a < clusters.size(); a++)
-		*tmpcloud += *clusters[a];
-	std::vector<std::vector<float>> nndata = dNNz(tmpcloud, 50, 2); //careful here //list of nn distances with the coresponding z heights at step size of 2
-	std::cout << "Done DNNz" << std::endl;
-
-	std::vector<float> clusterlengths;			   // all clusterlengths
-	std::vector<Eigen::Vector4f> clustervectors;   // all clustervectors
-	std::vector<Eigen::Vector4f> clustercentroids; // all cluster centroids
-
-	std::vector<Eigen::Vector4f> clustermins; // all cluster centroids
-	std::vector<Eigen::Vector4f> clustermaxs; // all cluster centroids
-	std::vector<pcl::KdTreeFLANN<PointTreeseg>> kdtrees; // all cluster kdtrees
-
-	std::vector<int> clusteridxs; // indexs of unused clusters
-
-	for (int i = 0; i < clusters.size(); i++) // calculate all cluster variables first rather than in iterative steps below
+	for(int a=0; a<clusters.size(); a++) *tmpcloud += *clusters[a];
+	std::vector<std::vector<float>> nndata = dNNz(tmpcloud, 50, 2);
+	std::vector<float> clusterlengths;
+	std::vector<Eigen::Vector4f> clustervectors;
+	std::vector<Eigen::Vector4f> clustercentroids;
+	std::vector<Eigen::Vector4f> clustermins;
+	std::vector<Eigen::Vector4f> clustermaxs;
+	std::vector<pcl::KdTreeFLANN<PointTreeseg>> kdtrees;
+	std::vector<int> clusteridxs;
+	for(int i = 0; i < clusters.size(); i++)
 	{
 		Eigen::Vector4f clustercentroid;
 		Eigen::Matrix3f clustercovariancematrix;
@@ -854,95 +838,81 @@ void buildTree(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, pcl::P
 		pcl::transformPointCloud(*clusters[i], *clustertransformed, clustertransform);
 		pcl::getMinMax3D(*clustertransformed, clustermin, clustermax);
 		clusterlength = clustermax[2] - clustermin[2];
-
-		pcl::getMinMax3D(*clusters[i], clustermin, clustermax); //get min max of untransformed
-
+		pcl::getMinMax3D(*clusters[i], clustermin, clustermax);
 		Eigen::Vector4f clustervector(clustereigenvectors(0, 2), clustereigenvectors(1, 2), clustereigenvectors(2, 2), 0);
-
 		pcl::KdTreeFLANN<PointTreeseg> tree;
 		tree.setInputCloud(clusters[i]);
-
 		clusterlengths.push_back(clusterlength);
 		clustervectors.push_back(clustervector);
 		clustercentroids.push_back(clustercentroid);
 		clustermins.push_back(clustermin);
 		clustermaxs.push_back(clustermax);
 		kdtrees.push_back(tree);
-
 		clusteridxs.push_back(i);
 	}
-
-	std::cout << "Done transforming clusters" << std::endl;
-
 	int idx = findPrincipalCloudIdx(clusters);
 	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> treeclusters;
-	std::vector<int> outeridxs;// indexes of clusters in outer edge of tree
-
+	std::vector<int> outeridxs;
 	treeclusters.push_back(clusters[idx]);
 	outeridxs.push_back(idx);
-	clusteridxs.erase(clusteridxs.begin() + idx); // remove primary cluster
-
+	clusteridxs.erase(clusteridxs.begin()+idx);
 	int count = 0;
 	bool donesomething = true;
-	while (donesomething == true)
+	while(donesomething == true)
 	{
 		std::vector<int> tmpidxs;
-
-		for (int i = 0; i < outeridxs.size(); i++)
+		for(int i=0; i<outeridxs.size(); i++)
 		{
 			std::vector<int> member;
-			for (int j = 0; j < clusteridxs.size(); j++)
+			for(int j=0; j<clusteridxs.size(); j++)
 			{
-				if (clusterlengths[clusteridxs[j]] < clusterlengths[outeridxs[i]]) // compare cluster length along first PCA
+				if(clusterlengths[clusteridxs[j]] < clusterlengths[outeridxs[i]])
 				{
 					float mind = interpolatedNNZ((clustercentroids[clusteridxs[j]][2] + clustercentroids[outeridxs[i]][2]) / 2, nndata, true);
-
-					// perform an intersecting3dbbox check with an extra buffer distance of mind
-					if (clustermins[outeridxs[i]][0] <= (clustermaxs[clusteridxs[j]][0] + mind) && (clustermaxs[outeridxs[i]][0] + mind) >= clustermins[clusteridxs[j]][0] &&
+					if(clustermins[outeridxs[i]][0] <= (clustermaxs[clusteridxs[j]][0] + mind) && (clustermaxs[outeridxs[i]][0] + mind) >= clustermins[clusteridxs[j]][0] &&
 						clustermins[outeridxs[i]][1] <= (clustermaxs[clusteridxs[j]][1] + mind) && (clustermaxs[outeridxs[i]][1] + mind) >= clustermins[clusteridxs[j]][1] &&
 						clustermins[outeridxs[i]][2] <= (clustermaxs[clusteridxs[j]][2] + mind) && (clustermaxs[outeridxs[i]][2] + mind) >= clustermins[clusteridxs[j]][2]) 
 					{
-						// if bounding boxes are closer than mind then do min distance check
 						float d;
-						if (clusters[outeridxs[i]]->points.size() >= clusters[clusteridxs[j]]->points.size())
-							d = minDistBetweenClouds(clusters[outeridxs[i]], clusters[clusteridxs[j]],kdtrees[outeridxs[i]]); // this takes the most time so we want to minimize this check by doing it last
+						if(clusters[outeridxs[i]]->points.size() >= clusters[clusteridxs[j]]->points.size())
+						{       
+							d = minDistBetweenClouds(clusters[outeridxs[i]], clusters[clusteridxs[j]],kdtrees[outeridxs[i]]);
+						}
 						else
-							d = minDistBetweenClouds(clusters[clusteridxs[j]], clusters[outeridxs[i]]),kdtrees[clusteridxs[j]];
-						if (d <= mind)
 						{
-							member.push_back(j); // save j for adding
+							d = minDistBetweenClouds(clusters[clusteridxs[j]], clusters[outeridxs[i]]),kdtrees[clusteridxs[j]];
+						}
+						if(d <= mind) 
+						{
+							member.push_back(j);
 						}
 					}
 				}
 			}
-
 			std::sort(member.begin(), member.end(), std::greater<int>());
-			for (int k = 0; k < member.size(); k++)
+			for(int k=0; k<member.size(); k++)
 			{
-				tmpidxs.push_back(clusteridxs[member[k]]);			// add clusters idxs refernce to by j
-				clusteridxs.erase(clusteridxs.begin() + member[k]); // remove clusters reference to by j form the valid idxs
+				tmpidxs.push_back(clusteridxs[member[k]]);
+				clusteridxs.erase(clusteridxs.begin() + member[k]);
 			}
 		}
-		if (tmpidxs.size() != 0)
+		if(tmpidxs.size() != 0)
 		{
 			outeridxs.clear();
-			for (int m = 0; m < tmpidxs.size(); m++)
+			for(int m=0; m<tmpidxs.size(); m++)
 			{
-				treeclusters.push_back(clusters[tmpidxs[m]]); // add to tree
-				outeridxs.push_back(tmpidxs[m]);			  // get next set of outers
+				treeclusters.push_back(clusters[tmpidxs[m]]);
+				outeridxs.push_back(tmpidxs[m]);
 			}
 		}
-		else
-			donesomething = false;
+		else donesomething = false;
 		count++;
 		std::cout << "." << std::flush;
 	}
-
-	for (int n = 0; n < treeclusters.size(); n++)
-		*tree += *treeclusters[n];
+	for(int n=0; n<treeclusters.size(); n++) *tree += *treeclusters[n];
 }
 
-treeparams getTreeParams(pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, float zstep, float diffmax)
+treeparams getTreeParams(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, float zstep, float diffmax)
 {       
 	treeparams params;
 	Eigen::Vector4f min,max;

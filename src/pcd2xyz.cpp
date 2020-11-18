@@ -4,13 +4,14 @@
 
 #include <pcl/io/pcd_io.h>
 
-int main (int argc, char* argv[])
+int main (int argc, char **argv)
 {
+	std::vector<std::string> args(argv+1,argv+argc);
 	pcl::PCDReader reader;
 	pcl::PCDWriter writer;
-	for(int i=1;i<argc;i++)
+	for(int i=0;i<args.size();i++)
 	{
-		std::string tmp(argv[i]);
+		std::string tmp = args[i];
 		std::vector<std::string> split;
 		boost::split(split,tmp,boost::is_any_of("."));
 		std::stringstream ss;

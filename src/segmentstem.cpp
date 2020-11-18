@@ -5,24 +5,25 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/common.h>
 
-int main(int argc, char* argv[])
+int main(int argc, char **argv)
 {
+	std::vector<std::string> args(argv+1,argv+argc);
+	//
 	pcl::PCDReader reader;
 	pcl::PCDWriter writer;
 	std::stringstream ss;
 	//
-	int start = getTilesStartIdx(argc,argv);
 	std::cout << "Reading plot-level cloud: " << std::flush;
 	pcl::PointCloud<PointTreeseg>::Ptr plot(new pcl::PointCloud<PointTreeseg>);
-	readTiles(argc,argv,plot);
+	readTiles(args,plot);
 	std::cout << "complete" << std::endl;
 	//
-	for(int i=2;i<getTilesStartIdx(argc,argv);i++)
+	for(int i=1;i<getTilesStartIdx(args);i++)
 	{
-		std::cout << "----------: " << argv[i] << std::endl;		
-		std::vector<std::string> id = getFileID(argv[i]);
+		std::cout << "----------: " << args[i] << std::endl;		
+		std::vector<std::string> id = getFileID(args[i]);
 		pcl::PointCloud<PointTreeseg>::Ptr foundstem(new pcl::PointCloud<PointTreeseg>);
-		reader.read(argv[i],*foundstem);
+		reader.read(args[i],*foundstem);
 		//
 		std::cout << "RANSAC cylinder fit: " << std::flush;
 		int nnearest = 60;
@@ -33,7 +34,7 @@ int main(int argc, char* argv[])
 		//
 		std::cout << "Segmenting extended cylinder: " << std::flush;
 		pcl::PointCloud<PointTreeseg>::Ptr volume(new pcl::PointCloud<PointTreeseg>);
-		float expansionfactor = 6;
+		float expansionfactor = 12;
 		cyl.rad = cyl.rad*expansionfactor;
 		spatial3DCylinderFilter(plot,cyl,volume);
 		ss.str("");
@@ -83,7 +84,7 @@ int main(int argc, char* argv[])
 		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> regions;
 		nnearest = 50;
 		int nmin = 3;
-		float smoothness = atof(argv[1]);
+		float smoothness = std::stof(args[0]);
 		regionSegmentation(clusters[idx],nnearest,nmin,smoothness,regions);
 		ss.str("");
 		ss << id[0] << ".intermediate.cylinder.noground.clusters.regions." << id[1] << ".pcd";

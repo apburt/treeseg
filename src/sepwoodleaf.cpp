@@ -6,24 +6,25 @@
 
 #include <armadillo>
 
-int main (int argc, char* argv[])
+int main (int argc, char **argv)
 {
+	std::vector<std::string> args(argv+1,argv+argc);
 	pcl::PCDReader reader;
 	pcl::PCDWriter writer;
-	int kn = atoi(argv[1]);
-	int n_gaus = atoi(argv[2]);
-	int dist_mode = atoi(argv[3]);
-	int seed_mode = atoi(argv[4]);
-	int km_iter = atoi(argv[5]);
-	int em_iter = atoi(argv[6]);
-	float smoothness = atof(argv[7]);
-	for(int i=8;i<argc;i++)
+	int kn = std::stoi(args[0]);
+	int n_gaus = std::stoi(args[1]);
+	int dist_mode = std::stoi(args[2]);
+	int seed_mode = std::stoi(args[3]);
+	int km_iter = std::stoi(args[4]);
+	int em_iter = std::stoi(args[5]);
+	float smoothness = std::stof(args[6]);
+	for(int i=7;i<args.size();i++)
 	{
-		std::cout << "----------: " << argv[i] << std::endl;
+		std::cout << "----------: " << args[i] << std::endl;
 		std::cout << "Reading cloud: " << std::flush;
-		std::vector<std::string> id = getFileID(argv[i]);
+		std::vector<std::string> id = getFileID(args[i]);
 		pcl::PointCloud<PointTreeseg>::Ptr cloud(new pcl::PointCloud<PointTreeseg>);
-		reader.read(argv[i],*cloud);
+		reader.read(args[i],*cloud);
 		std::cout << "complete" << std::endl;
 		//
 		std::cout << "Region-based segmentation: " << std::flush;

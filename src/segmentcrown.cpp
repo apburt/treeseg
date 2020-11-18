@@ -6,19 +6,20 @@
 
 #include <armadillo>
 
-int main (int argc, char* argv[])
+int main(int argc, char **argv)
 {
+	std::vector<std::string> args(argv+1,argv+argc);
 	pcl::PCDReader reader;
 	pcl::PCDWriter writer;
 	std::stringstream ss;
-	bool sepwoodleaf = atoi(argv[2]);
-	for(int i=3;i<argc;i++)
+	bool sepwoodleaf = std::stoi(args[1]);
+	for(int i=2;i<args.size();i++)
 	{
-		std::cout << "----------: " << argv[i] << std::endl;
+		std::cout << "----------: " << args[i] << std::endl;
 		std::cout << "Reading volume cloud: " << std::flush;
-		std::vector<std::string> id = getFileID(argv[i]);
+		std::vector<std::string> id = getFileID(args[i]);
 		pcl::PointCloud<PointTreeseg>::Ptr volume(new pcl::PointCloud<PointTreeseg>);
-		reader.read(argv[i],*volume);
+		reader.read(args[i],*volume);
 		std::cout << "complete" << std::endl;
 		//
 		std::cout << "Euclidean clustering: " << std::flush;
@@ -38,7 +39,7 @@ int main (int argc, char* argv[])
 		int idx = findPrincipalCloudIdx(clusters);
 		int nnearest = 50;
 		int nmin = 3;
-		float smoothness = atof(argv[1]);
+		float smoothness = std::stof(args[0]);
 		regionSegmentation(clusters[idx],nnearest,nmin,smoothness,regions);
 		ss.str("");
 		ss << id[0] << ".ec.rg." << id[1] << ".pcd";

@@ -6,7 +6,7 @@
 
 #include "treeseg.h"
 
-int main (int argc, char** argv)
+int main (int argc, char **argv)
 {
 	int nnearest = atof(argv[1]);
 	float zstep = atof(argv[2]);

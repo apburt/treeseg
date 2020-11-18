@@ -8,7 +8,7 @@
 
 #include <dirent.h>
 
-int main(int argc,char** argv)
+int main(int argc, char **argv)
 {
 	std::string matrix_dir = argv[1];
 	if(matrix_dir[matrix_dir.length()-1] != '/') matrix_dir = matrix_dir + '/';

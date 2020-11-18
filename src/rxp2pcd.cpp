@@ -49,7 +49,7 @@ class importer : public scanlib::pointcloud
 		}
 };
 
-int main(int argc,char** argv)
+int main(int argc, char **argv)
 {
 	bool basic = true; //true: x,y,z ; false: x,y,z,range,reflectance,deviation,return_number,scan_number
 	std::string top_dir = argv[1];

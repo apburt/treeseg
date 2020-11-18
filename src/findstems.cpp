@@ -5,16 +5,18 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/common.h>
 
-int main (int argc, char *argv[])
+int main(int argc, char **argv)
 {
+	std::vector<std::string> args(argv+1,argv+argc);
+	//
 	pcl::PCDReader reader;
 	pcl::PCDWriter writer;
 	std::stringstream ss;
 	//
 	std::cout << "Reading slice: " << std::flush;
-	std::vector<std::string> id = getFileID(argv[5]);
+	std::vector<std::string> id = getFileID(args[4]);
 	pcl::PointCloud<PointTreeseg>::Ptr slice(new pcl::PointCloud<PointTreeseg>);
-	reader.read(argv[5],*slice);
+	reader.read(args[4],*slice);
 	std::cout << "complete" << std::endl;
 	//
 	std::cout << "Cluster extraction: " << std::flush;
@@ -32,7 +34,7 @@ int main (int argc, char *argv[])
 	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> regions;
 	nnearest = 9;
 	nmin = 100;
-	float smoothness = atof(argv[1]);
+	float smoothness = std::stof(args[0]);
 	for(int i=0;i<clusters.size();i++)
 	{
 		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> tmpregions;
@@ -47,10 +49,10 @@ int main (int argc, char *argv[])
 	std::cout << "RANSAC cylinder fits: " << std::flush;
 	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> cyls;
 	nnearest = 60;
-	float dmin = atof(argv[2]);
-	float dmax = atof(argv[3]);
+	float dmin = std::stof(args[1]);
+	float dmax = std::stof(args[2]);
 	std::ifstream coordfile;
-	coordfile.open(argv[4]);
+	coordfile.open(args[3]);
 	float coords[4];
 	int n = 0;
 	if(coordfile.is_open())

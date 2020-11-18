@@ -22,22 +22,23 @@ float maxcrown(float dbh)
 	return extent;
 }
 
-int main (int argc, char** argv)
+int main(int argc, char **argv)
 {
+	std::vector<std::string> args(argv+1,argv+argc);
 	pcl::PCDReader reader;
 	pcl::PCDWriter writer;
 	std::cout << "Reading plot-level cloud: " << std::flush;
 	pcl::PointCloud<PointTreeseg>::Ptr plot(new pcl::PointCloud<PointTreeseg>);
-	readTiles(argc,argv,plot);
+	readTiles(args,plot);
 	std::cout << "complete" << std::endl;
 	//
-	for(int i=1;i<getTilesStartIdx(argc,argv);i++)
+	for(int i=0;i<getTilesStartIdx(args);i++)
 	{
 		std::cout << "---------------" << std::endl;
 		//
-		std::vector<std::string> id = getFileID(argv[i]);
+		std::vector<std::string> id = getFileID(args[i]);
 		pcl::PointCloud<PointTreeseg>::Ptr stem(new pcl::PointCloud<PointTreeseg>);
-		reader.read(argv[i],*stem);
+		reader.read(args[i],*stem);
 		//
 		std::cout << "Estimating DBH: " << std::flush;
 		int nnearest = 90;

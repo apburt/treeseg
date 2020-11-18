@@ -4,16 +4,17 @@
 
 #include <pcl/io/pcd_io.h>
 
-int main (int argc, char *argv[])
+int main(int argc, char **argv)
 {
-	float resolution = atof(argv[1]);
-	float percentile = atof(argv[2]);
-	float zmin = atof(argv[3]);
-	float zmax = atof(argv[4]);
+	std::vector<std::string> args(argv+1,argv+argc);
+	float resolution = std::stof(args[0]);
+	float percentile = std::stof(args[1]);
+	float zmin = std::stof(args[2]);
+	float zmax = std::stof(args[3]);
 	pcl::PointCloud<PointTreeseg>::Ptr plotcloud(new pcl::PointCloud<PointTreeseg>);
 	pcl::PCDWriter writer;
-	readTiles(argc,argv,plotcloud);
-	std::vector<std::string> id = getFileID(argv[5]);
+	std::vector<std::string> id = getFileID(args[4]);
+	readTiles(args,plotcloud);
 	std::stringstream ss;
 	ss.str("");
 	ss << id[0] << ".slice.pcd";
