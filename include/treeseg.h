@@ -70,7 +70,7 @@ float interpolatedNNZ(float x, const std::vector<std::vector<float>> &nndata, bo
 
 //Downsampling
 
-void downsample(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered);
+void downsample(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered, bool octree=true);
 
 //Spatial filters
 

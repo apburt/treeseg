@@ -228,21 +228,27 @@ float interpolatedNNZ(float x, const std::vector<std::vector<float>> &nndata, bo
 
 //Downsampling
 
-void downsample(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered)
+void downsample(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered, bool octree)
 {
-	pcl::octree::OctreePointCloudVoxelCentroid<PointTreeseg> octree(edgelength);
-	octree.setInputCloud(original);
-	octree.defineBoundingBox();
-	octree.addPointsFromInputCloud();	
-	pcl::PointCloud<PointTreeseg>::VectorType centroids;
-	octree.getVoxelCentroids(centroids);
-	filtered->points.assign(centroids.begin(),centroids.end());
-	filtered->width = centroids.size();
-	filtered->height = 1;
-	//pcl::VoxelGrid<PointTreeseg> downsample;
-	//downsample.setInputCloud(original);
-	//downsample.setLeafSize(edgelength,edgelength,edgelength);
-	//downsample.filter(*filtered);
+	if(octree = true)
+	{
+		pcl::octree::OctreePointCloudVoxelCentroid<PointTreeseg> octree(edgelength);
+		octree.setInputCloud(original);
+		octree.defineBoundingBox();
+		octree.addPointsFromInputCloud();	
+		pcl::PointCloud<PointTreeseg>::VectorType centroids;
+		octree.getVoxelCentroids(centroids);
+		filtered->points.assign(centroids.begin(),centroids.end());
+		filtered->width = centroids.size();
+		filtered->height = 1;
+	}
+	if(octree = false)
+	{
+		pcl::VoxelGrid<PointTreeseg> downsample;
+		downsample.setInputCloud(original);
+		downsample.setLeafSize(edgelength,edgelength,edgelength);
+		downsample.filter(*filtered);
+	}
 }
 
 //Spatial Filters
