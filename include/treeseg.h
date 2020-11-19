@@ -95,7 +95,7 @@ void regionSegmentation(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nne
 
 //Shape fitting
 
-void fitPlane(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, pcl::PointIndices::Ptr &inliers);
+void fitPlane(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const pcl::PointCloud<pcl::Normal>::Ptr &normals, float dthreshold, pcl::PointIndices::Ptr &inliers, float nweight=0, float angle=0, Eigen::Vector3f axis={0,0,1});
 std::vector<float> fitCircle(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest);
 void fitCylinder(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, bool finite, bool diagnostics, cylinder &cyl);
 void cylinderDiagnostics(cylinder &cyl, int nnearest);

@@ -334,6 +334,7 @@ void estimateNormals(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nneare
 	ne.setSearchMethod(tree);
 	ne.setInputCloud(cloud);
 	ne.setKSearch(nnearest);
+	//ne.setRadiusSearch(0.03);
 	ne.compute(*normals);
 }
 
@@ -369,18 +370,20 @@ void regionSegmentation(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nne
 
 //Shape fitting
 
-void fitPlane(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, pcl::PointIndices::Ptr &inliers)
+void fitPlane(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const pcl::PointCloud<pcl::Normal>::Ptr &normals, float dthreshold, pcl::PointIndices::Ptr &inliers, float nweight, float angle, Eigen::Vector3f axis)
 {
-	std::vector<float> nndata = dNN(cloud,nnearest);
-	float nndist = nndata[0];
-	pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
-	//pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
-	pcl::SACSegmentation<PointTreeseg> seg;
-	seg.setOptimizeCoefficients(true);
-	seg.setModelType(pcl::SACMODEL_PLANE);
+	pcl::SACSegmentationFromNormals<PointTreeseg,pcl::Normal> seg;
+	seg.setModelType(pcl::SACMODEL_NORMAL_PARALLEL_PLANE);
 	seg.setMethodType(pcl::SAC_RANSAC);
-	seg.setDistanceThreshold(nndist);
 	seg.setInputCloud(cloud);
+	seg.setInputNormals(normals);
+	seg.setOptimizeCoefficients(true);
+	seg.setMaxIterations(1000);
+	seg.setDistanceThreshold(dthreshold);
+	seg.setNormalDistanceWeight(nweight);
+	seg.setAxis(axis);
+	seg.setEpsAngle(angle * (M_PI / 180.0));
+	pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
 	seg.segment(*inliers,*coefficients);	
 }
 

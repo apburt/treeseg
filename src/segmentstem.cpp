@@ -46,13 +46,17 @@ int main(int argc, char **argv)
 		pcl::PointCloud<PointTreeseg>::Ptr bottom(new pcl::PointCloud<PointTreeseg>);
 		pcl::PointCloud<PointTreeseg>::Ptr top(new pcl::PointCloud<PointTreeseg>);
 		pcl::PointCloud<PointTreeseg>::Ptr vnoground(new pcl::PointCloud<PointTreeseg>);
+		pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
 		pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
-		float zdelta = 0.25;
+		std::sort(volume->points.begin(),volume->points.end(),sortCloudByZ);
+		int idx = (2.5/100) * volume->points.size();
+		float ground = volume->points[idx].z;
 		Eigen::Vector4f min, max;
 		pcl::getMinMax3D(*volume,min,max);
-		spatial1DFilter(volume,"z",min[2],min[2]+zdelta,bottom);
-		spatial1DFilter(volume,"z",min[2]+zdelta,max[2],top);
-		fitPlane(bottom,nnearest,inliers);
+		spatial1DFilter(volume,"z",ground-1,ground+3,bottom);
+		spatial1DFilter(volume,"z",ground+3,max[2],top);
+		estimateNormals(bottom,250,normals); //tested both 100 and 250
+		fitPlane(bottom,normals,0.5,inliers,0.75,30);
 		extractIndices(bottom,inliers,true,vnoground);
 		*vnoground += *top;
 		ss.str("");
@@ -80,7 +84,7 @@ int main(int argc, char **argv)
 		std::cout << ss.str() << std::endl;
 		//
 		std::cout << "Region-based segmentation: " << std::flush; 
-		int idx = findClosestIdx(foundstem,clusters,true);
+		idx = findClosestIdx(foundstem,clusters,true);
 		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> regions;
 		nnearest = 50;
 		int nmin = 3;
@@ -95,7 +99,7 @@ int main(int argc, char **argv)
 		pcl::PointCloud<PointTreeseg>::Ptr stem(new pcl::PointCloud<PointTreeseg>);
 		idx = findClosestIdx(foundstem,regions,true);
 		nnearest = 60;
-		zdelta = 0.75;
+		float zdelta = 0.75;
 		float zstart = 5;
 		float stepcovmax = 0.05;
 		float radchangemin = 0.9;
