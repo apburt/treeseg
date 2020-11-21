@@ -28,8 +28,10 @@ int main (int argc, char **argv)
 		std::cout << "complete" << std::endl;
 		//
 		std::cout << "Region-based segmentation: " << std::flush;
+		pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
 		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> regions;
-		regionSegmentation(cloud,kn,3,smoothness,regions);
+		estimateNormals(cloud,250,normals);
+		regionSegmentation(cloud,normals,30,3,std::numeric_limits<int>::max(),smoothness,1,regions);
 		std::stringstream ss;
 		ss << "regions_" << id[0] << ".pcd";
 		writeClouds(regions,ss.str(),false);

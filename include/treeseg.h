@@ -91,7 +91,7 @@ void estimateNormals(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nneare
 
 //Segmentation
 
-void regionSegmentation(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, int nmin, float smoothness, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions);
+void regionSegmentation(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const pcl::PointCloud<pcl::Normal>::Ptr &normals, int nneighbours, int nmin, int nmax, float smoothness, float curvature, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions);
 
 //Shape fitting
 

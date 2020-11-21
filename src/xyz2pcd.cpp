@@ -11,13 +11,14 @@ int main (int argc, char **argv)
 	pcl::PCDWriter writer;
 	for(int i=0;i<args.size();i++)
 	{
+		std::cout << args[i] << std::endl;
 		std::string tmp = args[i];
 		std::vector<std::string> split;
 		boost::split(split,tmp,boost::is_any_of("."));
 		std::stringstream ss;
 		for(int j=0;j<split.size()-1;j++) ss << split[j] << ".";
 		ss << "pcd";
-		std::ifstream infile(argv[i]);
+		std::ifstream infile(args[i]);
 		float x,y,z;
 		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
 		while (infile >> x >> y >> z)

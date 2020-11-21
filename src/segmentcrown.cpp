@@ -35,12 +35,12 @@ int main(int argc, char **argv)
 		std::cout << ss.str() << std::endl;
 		//	
 		std::cout << "Region-based segmentation: " << std::flush;
-		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> regions;
 		int idx = findPrincipalCloudIdx(clusters);
-		int nnearest = 50;
-		int nmin = 3;
+		pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
+		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> regions;
+		estimateNormals(clusters[idx],50,normals);
 		float smoothness = std::stof(args[0]);
-		regionSegmentation(clusters[idx],nnearest,nmin,smoothness,regions);
+		regionSegmentation(clusters[idx],normals,30,3,std::numeric_limits<int>::max(),smoothness,1,regions);
 		ss.str("");
 		ss << id[0] << ".ec.rg." << id[1] << ".pcd";
 		writeClouds(regions,ss.str(),false);
@@ -84,8 +84,10 @@ int main(int argc, char **argv)
 			std::cout << ss.str() << std::endl;
 			//
 			std::cout << "Re-segmenting regions: " << std::flush;
+			normals->clear();
 			regions.clear();
-			regionSegmentation(wood,nnearest,nmin,smoothness+2.5,regions);
+			estimateNormals(wood,50,normals);
+			regionSegmentation(wood,normals,30,3,std::numeric_limits<int>::max(),smoothness,1,regions);
 			ss.str("");
 			ss << id[0] << ".ec.rg.rlw.plw.w.rg." << id[1] << ".pcd";
 			writeClouds(regions,ss.str(),false);

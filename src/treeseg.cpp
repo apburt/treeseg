@@ -340,22 +340,20 @@ void estimateNormals(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nneare
 
 //Segmentation
 
-void regionSegmentation(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, int nmin, float smoothness, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions)
+void regionSegmentation(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const pcl::PointCloud<pcl::Normal>::Ptr &normals, int nneighbours, int nmin, int nmax, float smoothness, float curvature, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions)
 {
 	std::vector<pcl::PointIndices> indices;
 	pcl::search::KdTree<PointTreeseg>::Ptr tree(new pcl::search::KdTree<PointTreeseg> ());
-	pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
 	tree->setInputCloud(cloud);
-	estimateNormals(cloud,nnearest,normals);
 	pcl::RegionGrowing<PointTreeseg,pcl::Normal> reg;
-	reg.setMinClusterSize(nmin);
-	reg.setMaxClusterSize(10000000);
-	reg.setSearchMethod(tree);
-	reg.setNumberOfNeighbours(30); //leaving this fixed for now
 	reg.setInputCloud(cloud);
 	reg.setInputNormals(normals);
-	reg.setSmoothnessThreshold(smoothness/180*M_PI);
-	reg.setCurvatureThreshold(1); //also fixed;
+	reg.setSearchMethod(tree);
+	reg.setNumberOfNeighbours(nneighbours);
+	reg.setMinClusterSize(nmin);
+	reg.setMaxClusterSize(nmax);
+	reg.setSmoothnessThreshold(smoothness * (M_PI / 180.0));
+	reg.setCurvatureThreshold(curvature);
 	reg.extract(indices);
 	for(std::vector<pcl::PointIndices>::iterator it=indices.begin();it!=indices.end();it++)
 	{       

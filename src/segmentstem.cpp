@@ -86,10 +86,10 @@ int main(int argc, char **argv)
 		std::cout << "Region-based segmentation: " << std::flush; 
 		idx = findClosestIdx(foundstem,clusters,true);
 		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> regions;
-		nnearest = 50;
-		int nmin = 3;
+		normals->clear();
+		estimateNormals(clusters[idx],50,normals);		
 		float smoothness = std::stof(args[0]);
-		regionSegmentation(clusters[idx],nnearest,nmin,smoothness,regions);
+		regionSegmentation(clusters[idx],normals,250,3,std::numeric_limits<int>::max(),smoothness,2,regions);
 		ss.str("");
 		ss << id[0] << ".intermediate.cylinder.noground.clusters.regions." << id[1] << ".pcd";
 		writeClouds(regions,ss.str(),false);

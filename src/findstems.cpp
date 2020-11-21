@@ -32,14 +32,15 @@ int main(int argc, char **argv)
 	//
 	std::cout << "Region-based segmentation: " << std::flush;
 	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> regions;
-	nnearest = 9;
-	nmin = 100;
+	pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
 	float smoothness = std::stof(args[0]);
 	for(int i=0;i<clusters.size();i++)
 	{
 		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> tmpregions;
-		regionSegmentation(clusters[i],nnearest,nmin,smoothness,tmpregions);
+		estimateNormals(clusters[i],9,normals);
+		regionSegmentation(clusters[i],normals,30,100,std::numeric_limits<int>::max(),smoothness,1,tmpregions);
 		for(int j=0;j<tmpregions.size();j++) regions.push_back(tmpregions[j]);
+		normals->clear();
 	}
 	ss.str("");
 	ss << id[0] << ".intermediate.slice.clusters.regions.pcd";
