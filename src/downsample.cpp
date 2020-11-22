@@ -30,6 +30,7 @@ int main(int argc, char **argv)
 			}
 			ss << id[0] << ".tile.thin."  << id[1] << ".pcd"; 
 			writer.write(ss.str(),*thinned,true);
+			thinned->clear();
 		}
 		else
 		{
@@ -38,7 +39,6 @@ int main(int argc, char **argv)
 		}
 		original->clear();	
 		downsampled->clear();
-		thinned->clear();
 	}
 	return 0;
 }

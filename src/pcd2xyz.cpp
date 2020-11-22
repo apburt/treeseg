@@ -19,7 +19,7 @@ int main (int argc, char **argv)
 		ss << "txt";
 		std::ofstream outfile(ss.str());
 		pcl::PointCloud<PointTreeseg>::Ptr cloud(new pcl::PointCloud<PointTreeseg>);
-		reader.read(argv[i],*cloud);
+		reader.read(args[i],*cloud);
 		for(int i=0;i<cloud->points.size();i++)
 		{
 			outfile << cloud->points[i].x << " " << cloud->points[i].y << " " << cloud->points[i].z << "\n";

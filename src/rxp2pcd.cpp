@@ -51,11 +51,12 @@ class importer : public scanlib::pointcloud
 
 int main(int argc, char **argv)
 {
+	std::vector<std::string> args(argv+1,argv+argc);
 	bool basic = true; //true: x,y,z ; false: x,y,z,range,reflectance,deviation,return_number,scan_number
-	std::string top_dir = argv[1];
+	std::string top_dir = args[0];
 	if(top_dir[top_dir.length()-1] != '/') top_dir = top_dir + "/";
 	std::ifstream cfile;
-	cfile.open(argv[2]);
+	cfile.open(args[1]);
 	float coordfile[4];
 	int no_count = 0;
 	if(cfile.is_open())
@@ -67,11 +68,11 @@ int main(int argc, char **argv)
 		}
 	}
 	cfile.close();
-	float plot_xmin = coordfile[0] - 10;
-	float plot_xmax = coordfile[1] + 10;
-	float plot_ymin = coordfile[2] - 10;
-	float plot_ymax = coordfile[3] + 10;
-	float tile_area = atof(argv[3]);
+	float plot_xmin = coordfile[0] - 20;
+	float plot_xmax = coordfile[1] + 20;
+	float plot_ymin = coordfile[2] - 20;
+	float plot_ymax = coordfile[3] + 20;
+	float tile_area = std::stof(args[2]);
 	float tile_length = sqrt(tile_area);
 	int tile_count = 0;
 	for(float x=plot_xmin;x<plot_xmax;x+=tile_length)
@@ -92,8 +93,8 @@ int main(int argc, char **argv)
 			c++;
 		}
 	}
-	float deviation_max = atof(argv[4]);
-	std::string fname = argv[5];
+	float deviation_max = std::stof(args[3]);
+	std::string fname = args[4];
 	std::stringstream ss;
 	std::ofstream xyzfiles[tile_count];
 	std::string xyznames[tile_count];

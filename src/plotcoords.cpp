@@ -10,7 +10,8 @@
 
 int main(int argc, char **argv)
 {
-	std::string matrix_dir = argv[1];
+	std::vector<std::string> args(argv+1,argv+argc);
+	std::string matrix_dir = args[0];
 	if(matrix_dir[matrix_dir.length()-1] != '/') matrix_dir = matrix_dir + '/';
 	std::vector<std::string> fnames;
 	char buf[PATH_MAX + 1];

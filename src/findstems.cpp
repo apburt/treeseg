@@ -37,8 +37,8 @@ int main(int argc, char **argv)
 	for(int i=0;i<clusters.size();i++)
 	{
 		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> tmpregions;
-		estimateNormals(clusters[i],9,normals);
-		regionSegmentation(clusters[i],normals,30,100,std::numeric_limits<int>::max(),smoothness,1,tmpregions);
+		estimateNormals(clusters[i],50,normals);
+		regionSegmentation(clusters[i],normals,250,100,std::numeric_limits<int>::max(),smoothness,2,tmpregions);
 		for(int j=0;j<tmpregions.size();j++) regions.push_back(tmpregions[j]);
 		normals->clear();
 	}

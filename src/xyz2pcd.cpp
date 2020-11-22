@@ -11,7 +11,7 @@ int main (int argc, char **argv)
 	pcl::PCDWriter writer;
 	for(int i=0;i<args.size();i++)
 	{
-		std::cout << args[i] << std::endl;
+		//std::cout << args[i] << std::endl;
 		std::string tmp = args[i];
 		std::vector<std::string> split;
 		boost::split(split,tmp,boost::is_any_of("."));
