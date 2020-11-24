@@ -10,7 +10,7 @@ float maxheight(float dbh)
 {
 	//m    -> 41.22 * dbh ^ 0.3406
 	//ci_u -> 42.30 * dbh ^ 0.3697
-	float height = 42.30 * pow(dbh,0.3697) + 5;
+	float height = 42.30 * pow(dbh,0.3697) + 15;
 	return height;
 }
 
@@ -18,7 +18,7 @@ float maxcrown(float dbh)
 {
 	//m    -> 29.40 * dbh ^ 0.6524
 	//ci_u -> 30.36 * dbh ^ 0.6931
-	float extent = 30.36 * pow(dbh,0.6931) + 5; 
+	float extent = 30.36 * pow(dbh,0.6931) + 10; 
 	return extent;
 }
 
@@ -47,27 +47,34 @@ int main(int argc, char **argv)
 		treeparams params = getTreeParams(stem,nnearest,zstep,diffmax);
 		std::cout << params.d << std::endl;
 		//
-		std::cout << "Crown dimensions: " << std::flush;
+		std::cout << "Volume dimensions: " << std::flush;
 		float h = maxheight(params.d);
-		float c = maxcrown(params.d);
-		std::cout << h << "m x " << c << "m (HxW)" << std::endl;
+		float r = maxcrown(params.d)/2;
+		std::cout << h << "m x " << r << "m (height + radius)" << std::endl;
 		//
 		std::cout << "Segmenting volume: " << std::flush;
-		pcl::PointCloud<PointTreeseg>::Ptr xslice(new pcl::PointCloud<PointTreeseg>);
-		pcl::PointCloud<PointTreeseg>::Ptr yslice(new pcl::PointCloud<PointTreeseg>);
-		pcl::PointCloud<PointTreeseg>::Ptr zslice(new pcl::PointCloud<PointTreeseg>);
+		pcl::PointCloud<PointTreeseg>::Ptr tmp1(new pcl::PointCloud<PointTreeseg>);
+		pcl::PointCloud<PointTreeseg>::Ptr tmp2(new pcl::PointCloud<PointTreeseg>);
 		pcl::PointCloud<PointTreeseg>::Ptr volume(new pcl::PointCloud<PointTreeseg>);
 		Eigen::Vector4f min,max,centroid;
+		cylinder cyl;
 		pcl::getMinMax3D(*stem,min,max);
 		pcl::compute3DCentroid(*stem,centroid);
-		spatial1DFilter(plot,"x",centroid[0]-c/2,centroid[0]+c/2,xslice);
-		spatial1DFilter(xslice,"y",centroid[1]-c/2,centroid[1]+c/2,yslice);
-		spatial1DFilter(yslice,"z",max[2],min[2]+h,zslice);
+		cyl.x = centroid[0];
+		cyl.y = centroid[1];
+		cyl.z = centroid[2];
+		cyl.rad = r;
+		cyl.dx = 0;
+		cyl.dy = 0;
+		cyl.dz = 1;
+		spatial3DCylinderFilter(plot,cyl,tmp1);
+		writer.write("test.pcd",*tmp1,true);
+		spatial1DFilter(tmp1,"z",max[2],min[2]+h,tmp2);
 		*volume += *stem;
-		*volume += *zslice;
+		*volume += *tmp2;
 		std::stringstream ss;
 		ss << id[0] << ".volume." << id[1] << ".pcd";
-		writer.write(ss.str(),*volume,true);	
+		writer.write(ss.str(),*volume,true);
 		std::cout << ss.str() << std::endl;
 	}
 	return 0;
