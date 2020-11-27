@@ -22,25 +22,21 @@ int main(int argc, char **argv)
 		reader.read(args[i],*volume);
 		std::cout << "complete" << std::endl;
 		//
-		std::cout << "Euclidean clustering: " << std::flush;
-		std::vector<std::vector<float>> nndata = dNNz(volume,50,2);
-		float nnmax = 0;
-		for(int i=0;i<nndata.size();i++) if(nndata[i][1] > nnmax) nnmax = nndata[i][1];
-		std::cout << nnmax << ", " << std::flush;
-		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> clusters;
-		euclideanClustering(volume,nnmax,3,clusters);
-		ss.str("");
-		ss << id[0] << ".ec." << id[1] << ".pcd";
-		writeClouds(clusters,ss.str(),false);
-		std::cout << ss.str() << std::endl;
-		//	
-		std::cout << "Region-based segmentation: " << std::flush;
-		int idx = findPrincipalCloudIdx(clusters);
-		pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
+		//std::cout << "Euclidean clustering: " << std::flush;
+		//std::vector<pcl::PointCloud<PointTreeseg>::Ptr> clusters;
+		//euclideanClustering(volume,2,3,clusters);
+		//ss.str("");
+		//ss << id[0] << ".ec." << id[1] << ".pcd";
+		//writeClouds(clusters,ss.str(),false);
+		//std::cout << ss.str() << std::endl;
+		//int idx = findPrincipalCloudIdx(clusters);
+		//
+		std::cout << "Region-based segmentation: " << std::flush; 
 		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> regions;
-		estimateNormals(clusters[idx],50,normals);
+		pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
 		float smoothness = std::stof(args[0]);
-		regionSegmentation(clusters[idx],normals,30,3,std::numeric_limits<int>::max(),smoothness,1,regions);
+		estimateNormals(volume,50,normals);
+		regionSegmentation(volume,normals,250,3,std::numeric_limits<int>::max(),smoothness,2,regions);
 		ss.str("");
 		ss << id[0] << ".ec.rg." << id[1] << ".pcd";
 		writeClouds(regions,ss.str(),false);
@@ -94,13 +90,13 @@ int main(int argc, char **argv)
 			std::cout << ss.str() << std::endl;
 		}
 		//
-		std::cout << "Optimising regions: " << std::flush;
-		removeFarRegions(regions);
-		ss.str("");
-		if(sepwoodleaf == true)	ss << id[0] << ".ec.rg.rlw.plw.w.rg.o." << id[1] << ".pcd";
-		else ss << id[0] << ".ec.rg.o." << id[1] << ".pcd";
-		writeClouds(regions,ss.str(),false);
-		std::cout << ss.str() << std::endl;
+		//std::cout << "Optimising regions: " << std::flush;
+		//removeFarRegions(regions);
+		//ss.str("");
+		//if(sepwoodleaf == true)	ss << id[0] << ".ec.rg.rlw.plw.w.rg.o." << id[1] << ".pcd";
+		//else ss << id[0] << ".ec.rg.o." << id[1] << ".pcd";
+		//writeClouds(regions,ss.str(),false);
+		//std::cout << ss.str() << std::endl;
 		//
 		std::cout << "Building tree: " << std::flush;
 		pcl::PointCloud<PointTreeseg>::Ptr tree(new pcl::PointCloud<PointTreeseg>);

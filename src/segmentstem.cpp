@@ -94,7 +94,8 @@ int main(int argc, char **argv)
 		float smoothness = std::stof(args[0]);
 		regionSegmentation(vnoground,normals,250,3,std::numeric_limits<int>::max(),smoothness,2,regions);
 		ss.str("");
-		ss << id[0] << ".intermediate.cylinder.noground.clusters.regions." << id[1] << ".pcd";
+		//ss << id[0] << ".intermediate.cylinder.noground.clusters.regions." << id[1] << ".pcd";
+		ss << id[0] << ".intermediate.cylinder.noground.regions." << id[1] << ".pcd";
 		writeClouds(regions,ss.str(),false);
 		std::cout << ss.str() << std::endl;
 		//

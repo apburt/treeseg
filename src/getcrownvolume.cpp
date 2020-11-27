@@ -10,7 +10,7 @@ float maxheight(float dbh)
 {
 	//m    -> 41.22 * dbh ^ 0.3406
 	//ci_u -> 42.30 * dbh ^ 0.3697
-	float height = 42.30 * pow(dbh,0.3697) + 15;
+	float height = 42.30 * pow(dbh,0.3697) + 50;
 	return height;
 }
 
@@ -18,7 +18,7 @@ float maxcrown(float dbh)
 {
 	//m    -> 29.40 * dbh ^ 0.6524
 	//ci_u -> 30.36 * dbh ^ 0.6931
-	float extent = 30.36 * pow(dbh,0.6931) + 10; 
+	float extent = 30.36 * pow(dbh,0.6931) + 30; 
 	return extent;
 }
 
@@ -68,7 +68,6 @@ int main(int argc, char **argv)
 		cyl.dy = 0;
 		cyl.dz = 1;
 		spatial3DCylinderFilter(plot,cyl,tmp1);
-		writer.write("test.pcd",*tmp1,true);
 		spatial1DFilter(tmp1,"z",max[2],min[2]+h,tmp2);
 		*volume += *stem;
 		*volume += *tmp2;
