@@ -238,9 +238,13 @@ void downsample(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgele
 		octree.addPointsFromInputCloud();	
 		pcl::PointCloud<PointTreeseg>::VectorType centroids;
 		octree.getVoxelCentroids(centroids);
-		filtered->points.assign(centroids.begin(),centroids.end());
-		filtered->width = centroids.size();
-		filtered->height = 1;
+		pcl::PointCloud<PointTreeseg>::Ptr tmp(new pcl::PointCloud<PointTreeseg>);
+		tmp->points.assign(centroids.begin(),centroids.end());
+		tmp->width = centroids.size();
+		tmp->height = 1;
+		tmp->is_dense = false;
+		std::vector<int> ind;
+		pcl::removeNaNFromPointCloud(*tmp,*filtered,ind);	
 	}
 	if(octree = false)
 	{
