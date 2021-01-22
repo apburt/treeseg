@@ -3,7 +3,7 @@
 *
 * MIT License
 *
-* Copyright 2017-2020 Andrew Burt - a.burt@ucl.ac.uk
+* Copyright 2017-2021 Andrew Burt - a.burt@ucl.ac.uk
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to
@@ -230,7 +230,7 @@ float interpolatedNNZ(float x, const std::vector<std::vector<float>> &nndata, bo
 
 void downsample(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered, bool octree)
 {
-	if(octree = true)
+	if(octree == true)
 	{
 		pcl::octree::OctreePointCloudVoxelCentroid<PointTreeseg> octree(edgelength);
 		octree.setInputCloud(original);
@@ -246,7 +246,7 @@ void downsample(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgele
 		std::vector<int> ind;
 		pcl::removeNaNFromPointCloud(*tmp,*filtered,ind);	
 	}
-	if(octree = false)
+	if(octree == false)
 	{
 		pcl::VoxelGrid<PointTreeseg> downsample;
 		downsample.setInputCloud(original);
@@ -521,9 +521,9 @@ void cylinderDiagnostics(cylinder &cyl, int nnearest)
 
 //Generic
 
-bool sortCol(const std::vector<int> &v1, const std::vector<int> &v2)
+bool sort2DFloatVectorByCol2(const std::vector<float> &v1, const std::vector<float> &v2)
 {
-        return v1[1] < v2[1];
+        return v1[2] < v2[2];
 }
 
 bool sortCloudByZ(const PointTreeseg &p1, const PointTreeseg &p2)
@@ -588,27 +588,37 @@ int findClosestIdx(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const std::v
 
 int findPrincipalCloudIdx(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds)
 {
-	std::vector<std::vector<int>> info;
-	pcl::PointCloud<PointTreeseg>::Ptr cloud(new pcl::PointCloud<PointTreeseg>);
-	for(int i=0;i<clouds.size();i++) *cloud += *clouds[i];
-	Eigen::Vector4f min,max;
-	pcl::getMinMax3D(*cloud,min,max);
+	std::vector<std::vector<float>> info;
 	for(int i=0;i<clouds.size();i++)
 	{
-		Eigen::Vector4f cmin, cmax;
-		pcl::getMinMax3D(*clouds[i],cmin,cmax);
-		if(cmin[2] < min[2]+2)
+		Eigen::Vector4f min,max;
+		pcl::getMinMax3D(*clouds[i],min,max);
+		std::vector<float> tmp;
+		tmp.push_back(i);
+		tmp.push_back(clouds[i]->points.size());
+		tmp.push_back(min[2]);
+		info.push_back(tmp);
+	}
+	std::sort(info.begin(),info.end(),sort2DFloatVectorByCol2);
+	float zrange = abs(info[info.size()-1][2]-info[0][2]);
+	float zpercentile = (5.0/100.0)*zrange;
+	float zmax = info[0][2]+zpercentile;
+	int idx = 0;
+	int pcount = 0;
+	for(int i=0;i<info.size();i++)
+	{
+		if(info[i][1] > pcount)
 		{
-			std::vector<int> in;
-			in.push_back(i);
-			in.push_back(clouds[i]->points.size());
-			info.push_back(in);
+			if(info[i][2] < zmax)
+			{
+			idx = info[i][0];
+			pcount = info[i][1];
+			}
 		}
 	}
-	std::sort(info.begin(),info.end(),sortCol);
-	int idx = info[info.size()-1][0];
 	return idx;
 }
+
 
 void extractIndices(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const pcl::PointIndices::Ptr &inliers, bool invert, pcl::PointCloud<PointTreeseg>::Ptr &filtered)
 {

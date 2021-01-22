@@ -3,7 +3,7 @@
 *
 * MIT License
 *
-* Copyright 2017-2020 Andrew Burt - a.burt@ucl.ac.uk
+* Copyright 2017-2021 Andrew Burt - a.burt@ucl.ac.uk
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to
@@ -102,7 +102,7 @@ void cylinderDiagnostics(cylinder &cyl, int nnearest);
 
 //Generic
 
-bool sortCol(const std::vector<int> &v1, const std::vector<int> &v2);
+bool sort2DFloatVectorByCol2(const std::vector<float> &v1, const std::vector<float> &v2);
 bool sortCloudByZ(const PointTreeseg &p1, const PointTreeseg &p2);
 std::vector<int> nearestIdx(const pcl::PointCloud<PointTreeseg>::Ptr &searchpoints, const pcl::PointCloud<PointTreeseg>::Ptr &cloud);
 int findClosestIdx(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, bool biggest);
