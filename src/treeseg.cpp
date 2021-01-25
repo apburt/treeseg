@@ -611,8 +611,8 @@ int findPrincipalCloudIdx(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> 
 		{
 			if(info[i][2] < zmax)
 			{
-			idx = info[i][0];
-			pcount = info[i][1];
+				idx = info[i][0];
+				pcount = info[i][1];
 			}
 		}
 	}
@@ -790,45 +790,38 @@ void correctStem(const pcl::PointCloud<PointTreeseg>::Ptr &stem, float nnearest,
 	else spatial1DFilter(stem,"z",min[2],max[2]-zstep,corrected);
 }
 
-void removeFarRegions(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters)
+void removeFarRegions(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, std::vector<pcl::KdTreeFLANN<PointTreeseg>> &kdtrees)
 {
-	pcl::PointCloud<PointTreeseg>::Ptr cloud(new pcl::PointCloud<PointTreeseg>);
-	for(int i=0;i<clusters.size();i++) *cloud += *clusters[i];
-	Eigen::Vector4f min,max;
-	pcl::getMinMax3D(*cloud,min,max);
-	float xm = (max[0] + min[0]) / 2;
-	float ym = (max[1] + min[1]) / 2;
-	std::vector<float> zloc(clusters.size());
-	for(int i=0;i<clusters.size();i++)
-	{
-		Eigen::Vector4f cmin,cmax;
-		pcl::getMinMax3D(*clusters[i],cmin,cmax);
-		zloc[i] = cmin[2];
-	}
-	std::vector<float> tmp = zloc;
-	std::sort(tmp.begin(),tmp.end());
-	int pos = static_cast<int>(static_cast<float>(clusters.size()) * 0.1);
-	float zmax = tmp[pos]; 
+	int principalidx = findPrincipalCloudIdx(clusters);
+	Eigen::Vector4f pmin,pmax;
+	pcl::getMinMax3D(*clusters[principalidx],pmin,pmax);
+	int mincount = static_cast<int>(static_cast<float>(clusters[principalidx]->points.size() * 0.25));
 	std::vector<int> remove_list;
 	for(int i=0;i<clusters.size();i++)
 	{
-		if(zloc[i] < zmax)
+		if(i != principalidx && clusters[i]->points.size() > mincount)
 		{
-			pcl::PointCloud<PointTreeseg>::Ptr zslice(new pcl::PointCloud<PointTreeseg>);
-			spatial1DFilter(clusters[i],"z",-10000000,zmax,zslice);
-			Eigen::Vector4f smin,smax;
-			pcl::getMinMax3D(*zslice,smin,smax);
-			float sxm = (smax[0] + smin[0]) / 2;
-			float sym = (smax[1] + smin[1]) / 2;
-			float d = sqrt(pow((sxm-xm),2) + pow((sym-ym),2));
-			if(d > 0.5) remove_list.push_back(i);
+			Eigen::Vector4f cmin,cmax;
+			pcl::getMinMax3D(*clusters[i],cmin,cmax);
+			if(cmin[2] < pmax[2])
+			{
+				float d = 0;
+				if(clusters[principalidx]->points.size() >= clusters[i]->points.size()) d = minDistBetweenClouds(clusters[principalidx],clusters[i],kdtrees[principalidx]);
+				else d = minDistBetweenClouds(clusters[i],clusters[principalidx],kdtrees[i]);
+				if(d > 0.5) remove_list.push_back(i);
+			}
 		}
+
 	}
 	std::sort(remove_list.begin(),remove_list.end(),std::greater<int>());
-	for(int k=0;k<remove_list.size();k++) clusters.erase(clusters.begin()+remove_list[k]);
+	for(int k=0;k<remove_list.size();k++)
+	{
+		clusters.erase(clusters.begin()+remove_list[k]);
+		kdtrees.erase(kdtrees.begin()+remove_list[k]);
+	}
 }
 
-void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, pcl::PointCloud<PointTreeseg>::Ptr &tree)
+void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, const std::vector<pcl::KdTreeFLANN<PointTreeseg>> &kdtrees, pcl::PointCloud<PointTreeseg>::Ptr &tree)
 {
 	pcl::PointCloud<PointTreeseg>::Ptr tmpcloud(new pcl::PointCloud<PointTreeseg>);
 	for(int a=0; a<clusters.size(); a++) *tmpcloud += *clusters[a];
@@ -838,7 +831,6 @@ void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, 
 	std::vector<Eigen::Vector4f> clustercentroids;
 	std::vector<Eigen::Vector4f> clustermins;
 	std::vector<Eigen::Vector4f> clustermaxs;
-	std::vector<pcl::KdTreeFLANN<PointTreeseg>> kdtrees;
 	std::vector<int> clusteridxs;
 	for(int i = 0; i < clusters.size(); i++)
 	{
@@ -861,14 +853,11 @@ void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, 
 		clusterlength = clustermax[2] - clustermin[2];
 		pcl::getMinMax3D(*clusters[i], clustermin, clustermax);
 		Eigen::Vector4f clustervector(clustereigenvectors(0, 2), clustereigenvectors(1, 2), clustereigenvectors(2, 2), 0);
-		pcl::KdTreeFLANN<PointTreeseg> tree;
-		tree.setInputCloud(clusters[i]);
 		clusterlengths.push_back(clusterlength);
 		clustervectors.push_back(clustervector);
 		clustercentroids.push_back(clustercentroid);
 		clustermins.push_back(clustermin);
 		clustermaxs.push_back(clustermax);
-		kdtrees.push_back(tree);
 		clusteridxs.push_back(i);
 	}
 	int idx = findPrincipalCloudIdx(clusters);

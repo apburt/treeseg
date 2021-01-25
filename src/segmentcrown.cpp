@@ -90,17 +90,27 @@ int main(int argc, char **argv)
 			std::cout << ss.str() << std::endl;
 		}
 		//
-		//std::cout << "Optimising regions: " << std::flush;
-		//removeFarRegions(regions);
-		//ss.str("");
-		//if(sepwoodleaf == true)	ss << id[0] << ".ec.rg.rlw.plw.w.rg.o." << id[1] << ".pcd";
-		//else ss << id[0] << ".ec.rg.o." << id[1] << ".pcd";
-		//writeClouds(regions,ss.str(),false);
-		//std::cout << ss.str() << std::endl;
+		std::cout << "Building k-d trees: " << std::flush;
+		std::vector<pcl::KdTreeFLANN<PointTreeseg>> kdtrees;
+		for(int i=0;i<regions.size();i++)
+		{
+			pcl::KdTreeFLANN<PointTreeseg> tree;
+			tree.setInputCloud(regions[i]);
+			kdtrees.push_back(tree);
+		}
+		std::cout << "complete" << std::endl;
+		//
+		std::cout << "Optimising regions: " << std::flush;
+		removeFarRegions(regions,kdtrees);
+		ss.str("");
+		if(sepwoodleaf == true)	ss << id[0] << ".ec.rg.rlw.plw.w.rg.o." << id[1] << ".pcd";
+		else ss << id[0] << ".ec.rg.o." << id[1] << ".pcd";
+		writeClouds(regions,ss.str(),false);
+		std::cout << ss.str() << std::endl;
 		//
 		std::cout << "Building tree: " << std::flush;
 		pcl::PointCloud<PointTreeseg>::Ptr tree(new pcl::PointCloud<PointTreeseg>);
-		buildTree(regions,tree);
+		buildTree(regions,kdtrees,tree);
 		ss.str("");
 		ss << id[0] << "_" << id[1] << ".pcd";
 		writer.write(ss.str(),*tree,true);
