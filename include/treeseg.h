@@ -55,6 +55,19 @@ struct cylinder
         pcl::PointCloud<PointTreeseg>::Ptr inliers;
 };
 
+struct cloudmetrics
+{
+	int count;
+	Eigen::Vector4f min3D;
+	Eigen::Vector4f max3D;
+	Eigen::Vector4f centroid;
+	Eigen::Matrix3f covariancematrix;
+	Eigen::Matrix3f eigenvectors;
+	Eigen::Vector3f eigenvalues;
+	Eigen::Vector3f vector3D;
+	float length;
+};
+
 //File IO
 
 std::vector<std::string> getFileID(std::string filename);
@@ -67,6 +80,11 @@ void writeClouds(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters
 std::vector<float> dNN(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest);
 std::vector<std::vector<float>> dNNz(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, float zstep);
 float interpolatedNNZ(float x, const std::vector<std::vector<float>> &nndata, bool extrapolate);
+
+//Cloud metrics
+
+void getCloudMetrics(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, cloudmetrics metrics);
+float getCloudLength(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const Eigen::Vector4f &centroid, const Eigen::Matrix3f &eigenvectors);
 
 //Downsampling
 

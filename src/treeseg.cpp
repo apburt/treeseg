@@ -226,6 +226,47 @@ float interpolatedNNZ(float x, const std::vector<std::vector<float>> &nndata, bo
 	return yL + dydx * ( x - xL );
 }
 
+//Cloud metrics
+
+void getCloudMetrics(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, cloudmetrics metrics)
+{
+	Eigen::Vector4f min3D;
+	Eigen::Vector4f max3D;
+	Eigen::Vector4f centroid;
+	Eigen::Matrix3f covariancematrix;
+	Eigen::Matrix3f eigenvectors;
+	Eigen::Vector3f eigenvalues;
+	pcl::getMinMax3D(*cloud,min3D,max3D);
+	computePCA(cloud,centroid,covariancematrix,eigenvectors,eigenvalues);
+	float length = getCloudLength(cloud,centroid,eigenvectors);
+	Eigen::Vector3f vector3D(eigenvectors(0,2),eigenvectors(1,2),eigenvectors(2,2));
+	metrics.count = cloud->points.size();
+	metrics.min3D = min3D;
+	metrics.max3D = max3D;
+	metrics.centroid = centroid;
+	metrics.covariancematrix = covariancematrix;
+	metrics.eigenvectors = eigenvectors;
+	metrics.eigenvalues = eigenvalues;
+	metrics.vector3D = vector3D; 
+	metrics.length = length;
+}
+
+float getCloudLength(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const Eigen::Vector4f &centroid, const Eigen::Matrix3f &eigenvectors)
+{
+	Eigen::Vector3f point(centroid[0],centroid[1],centroid[2]);
+        Eigen::Vector3f direction(eigenvectors(0,2),eigenvectors(1,2),eigenvectors(2,2));
+        Eigen::Affine3f transform;
+        Eigen::Vector3f world(0,direction[2],-direction[1]);
+        direction.normalize();
+        pcl::getTransformationFromTwoUnitVectorsAndOrigin(world,direction,point,transform);
+	pcl::PointCloud<PointTreeseg>::Ptr transformedcloud(new pcl::PointCloud<PointTreeseg>);
+	pcl::transformPointCloud(*cloud,*transformedcloud,transform);
+	Eigen::Vector4f min,max;
+	pcl::getMinMax3D(*transformedcloud,min,max);
+        float length = max[2]-min[2];
+	return length;
+}
+
 //Downsampling
 
 void downsample(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered, bool octree)
@@ -824,40 +865,15 @@ void removeFarRegions(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters,
 void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, const std::vector<pcl::KdTreeFLANN<PointTreeseg>> &kdtrees, pcl::PointCloud<PointTreeseg>::Ptr &tree)
 {
 	pcl::PointCloud<PointTreeseg>::Ptr tmpcloud(new pcl::PointCloud<PointTreeseg>);
-	for(int a=0; a<clusters.size(); a++) *tmpcloud += *clusters[a];
+	for(int a=0;a<clusters.size();a++) *tmpcloud += *clusters[a];
 	std::vector<std::vector<float>> nndata = dNNz(tmpcloud, 50, 2);
-	std::vector<float> clusterlengths;
-	std::vector<Eigen::Vector4f> clustervectors;
-	std::vector<Eigen::Vector4f> clustercentroids;
-	std::vector<Eigen::Vector4f> clustermins;
-	std::vector<Eigen::Vector4f> clustermaxs;
+	std::vector<cloudmetrics> clustermetrics;
 	std::vector<int> clusteridxs;
-	for(int i = 0; i < clusters.size(); i++)
+	for(int i=0;i<clusters.size();i++)
 	{
-		Eigen::Vector4f clustercentroid;
-		Eigen::Matrix3f clustercovariancematrix;
-		Eigen::Matrix3f clustereigenvectors;
-		Eigen::Vector3f clustereigenvalues;
-		pcl::PointCloud<PointTreeseg>::Ptr clustertransformed(new pcl::PointCloud<PointTreeseg>);
-		Eigen::Vector4f clustermin, clustermax;
-		float clusterlength;
-		computePCA(clusters[i], clustercentroid, clustercovariancematrix, clustereigenvectors, clustereigenvalues);
-		Eigen::Vector3f clusterpoint(clustercentroid[0], clustercentroid[1], clustercentroid[2]);
-		Eigen::Vector3f clusterdirection(clustereigenvectors(0, 2), clustereigenvectors(1, 2), clustereigenvectors(2, 2));
-		Eigen::Affine3f clustertransform;
-		Eigen::Vector3f clusterworld(0, clusterdirection[2], -clusterdirection[1]);
-		clusterdirection.normalize();
-		pcl::getTransformationFromTwoUnitVectorsAndOrigin(clusterworld, clusterdirection, clusterpoint, clustertransform);
-		pcl::transformPointCloud(*clusters[i], *clustertransformed, clustertransform);
-		pcl::getMinMax3D(*clustertransformed, clustermin, clustermax);
-		clusterlength = clustermax[2] - clustermin[2];
-		pcl::getMinMax3D(*clusters[i], clustermin, clustermax);
-		Eigen::Vector4f clustervector(clustereigenvectors(0, 2), clustereigenvectors(1, 2), clustereigenvectors(2, 2), 0);
-		clusterlengths.push_back(clusterlength);
-		clustervectors.push_back(clustervector);
-		clustercentroids.push_back(clustercentroid);
-		clustermins.push_back(clustermin);
-		clustermaxs.push_back(clustermax);
+		cloudmetrics cm;
+		getCloudMetrics(clusters[i],cm);
+		clustermetrics.push_back(cm);
 		clusteridxs.push_back(i);
 	}
 	int idx = findPrincipalCloudIdx(clusters);
@@ -876,12 +892,12 @@ void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, 
 			std::vector<int> member;
 			for(int j=0; j<clusteridxs.size(); j++)
 			{
-				if(clusterlengths[clusteridxs[j]] < clusterlengths[outeridxs[i]])
+				if(clustermetrics[clusteridxs[j]].length < clustermetrics[outeridxs[i]].length)
 				{
-					float mind = interpolatedNNZ((clustercentroids[clusteridxs[j]][2] + clustercentroids[outeridxs[i]][2]) / 2, nndata, true);
-					if(clustermins[outeridxs[i]][0] <= (clustermaxs[clusteridxs[j]][0] + mind) && (clustermaxs[outeridxs[i]][0] + mind) >= clustermins[clusteridxs[j]][0] &&
-						clustermins[outeridxs[i]][1] <= (clustermaxs[clusteridxs[j]][1] + mind) && (clustermaxs[outeridxs[i]][1] + mind) >= clustermins[clusteridxs[j]][1] &&
-						clustermins[outeridxs[i]][2] <= (clustermaxs[clusteridxs[j]][2] + mind) && (clustermaxs[outeridxs[i]][2] + mind) >= clustermins[clusteridxs[j]][2]) 
+					float mind = interpolatedNNZ((clustermetrics[clusteridxs[j]].centroid[2]+clustermetrics[outeridxs[i]].centroid[2]/2),nndata,true);
+					if(clustermetrics[outeridxs[i]].min3D[0] <= (clustermetrics[clusteridxs[j]].max3D[0]+mind) && (clustermetrics[outeridxs[i]].max3D[0]+mind) >= clustermetrics[clusteridxs[j]].min3D[0] && 
+						clustermetrics[outeridxs[i]].min3D[1] <= (clustermetrics[clusteridxs[j]].max3D[1]+mind) && (clustermetrics[outeridxs[i]].max3D[1]+mind) >= clustermetrics[clusteridxs[j]].min3D[1] &&
+						clustermetrics[outeridxs[i]].min3D[2] <= (clustermetrics[clusteridxs[j]].max3D[2]+mind) && (clustermetrics[outeridxs[i]].max3D[2]+mind) >= clustermetrics[clusteridxs[j]].min3D[2])
 					{
 						float d;
 						if(clusters[outeridxs[i]]->points.size() >= clusters[clusteridxs[j]]->points.size())
