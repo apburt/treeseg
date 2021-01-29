@@ -14,9 +14,9 @@ struct pcloud
 	std::vector<float> range;
 	std::vector<float> amplitude;
 	std::vector<float> reflectance;
-	std::vector<uint16_t> deviation;
-	std::vector<uint16_t> return_number;
-	uint16_t scan_number;
+	std::vector<std::uint16_t> deviation;
+	std::vector<std::uint16_t> return_number;
+	std::uint16_t scan_number;
 	std::vector<float> time;
 	float matrix[16];
 };
@@ -38,10 +38,10 @@ class importer : public scanlib::pointcloud
 				pc.range.push_back(targets[i].echo_range);
 				pc.amplitude.push_back(targets[i].amplitude);
 				pc.reflectance.push_back(targets[i].reflectance);
-				pc.deviation.push_back((uint16_t)targets[i].deviation);
-				pc.return_number.push_back((uint16_t)i+1);
+				pc.deviation.push_back((std::uint16_t)targets[i].deviation);
+				pc.return_number.push_back((std::uint16_t)i+1);
 				pc.time.push_back((float)targets[i].time);
-				//the following truncations have occured:
+				//the following truncations have taken place:
 				//deviation: float to uint16_t
 				//return number: int to uint16_t
 				//time: double to float
@@ -171,7 +171,7 @@ int main(int argc, char **argv)
 			else if(positions[k][7] == '0') ss << positions[k][8] << positions[k][9];
 			else ss << positions[k][7] << positions[k][8] << positions[k][9];
 			std::string scan_number = ss.str();
-			pc.scan_number = (uint16_t)atoi(scan_number.c_str());
+			pc.scan_number = (std::uint16_t)atoi(scan_number.c_str());
 			std::ifstream mfile;
 			mfile.open(matrixname);
 			int no_count = 0;

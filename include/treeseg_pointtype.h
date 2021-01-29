@@ -45,15 +45,15 @@ struct PointTreeseg
 	{
 		struct
 		{
-			uint16_t deviation;
-			uint16_t return_number;
-			uint16_t scan_number;
+			std::uint16_t deviation;
+			std::uint16_t return_number;
+			std::uint16_t scan_number;
 		};
-		uint16_t data_drs[4]; // 8bytes
+		std::uint16_t data_drs[4]; // 8bytes
 	};
 	//out of my depth here wrt memory alignment - unsure for second union
-*/
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+*/
 };
 POINT_CLOUD_REGISTER_POINT_STRUCT
 (
@@ -64,8 +64,8 @@ POINT_CLOUD_REGISTER_POINT_STRUCT
 /*
 	(float,range,range)
 	(float,reflectance,reflectance)
-	(uint16_t,deviation,deviation)
-	(uint16_t,return_number,return_number)
-	(uint16_t,scan_number,scan_number)
+	(std::uint16_t,deviation,deviation)
+	(std::uint16_t,return_number,return_number)
+	(std::uint16_t,scan_number,scan_number)
 */
 )
