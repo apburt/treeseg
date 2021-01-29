@@ -68,6 +68,13 @@ struct cloudmetrics
 	float length;
 };
 
+struct basiccloudmetrics
+{
+	int count;
+	Eigen::Vector4f min3D;
+	Eigen::Vector4f max3D;
+};
+
 //File IO
 
 std::vector<std::string> getFileID(std::string filename);
@@ -85,6 +92,7 @@ float interpolatedNNZ(float x, const std::vector<std::vector<float>> &nndata, bo
 
 void getCloudMetrics(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, cloudmetrics metrics);
 float getCloudLength(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const Eigen::Vector4f &centroid, const Eigen::Matrix3f &eigenvectors);
+void getBasicCloudMetrics(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, basiccloudmetrics metrics);
 
 //Downsampling
 
@@ -120,6 +128,7 @@ void cylinderDiagnostics(cylinder &cyl, int nnearest);
 
 //Generic
 
+bool sort2DFloatVectorByCol1(const std::vector<float> &v1, const std::vector<float> &v2);
 bool sort2DFloatVectorByCol2(const std::vector<float> &v1, const std::vector<float> &v2);
 bool sortCloudByZ(const PointTreeseg &p1, const PointTreeseg &p2);
 std::vector<int> nearestIdx(const pcl::PointCloud<PointTreeseg>::Ptr &searchpoints, const pcl::PointCloud<PointTreeseg>::Ptr &cloud);
@@ -135,6 +144,6 @@ void catIntersectingClouds(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clou
 
 std::vector<std::vector<float>> getDemAndSlice(const pcl::PointCloud<PointTreeseg>::Ptr &plot, float resolution, float percentile, float zmin, float zmax, pcl::PointCloud<PointTreeseg>::Ptr &slice);
 void correctStem(const pcl::PointCloud<PointTreeseg>::Ptr &stem, float nnearest, float zstart, float zstep, float stepcovmax, float radchangemin, pcl::PointCloud<PointTreeseg>::Ptr &corrected);
-void removeFarRegions(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, std::vector<pcl::KdTreeFLANN<PointTreeseg>> &kdtrees);
-void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clusters, const std::vector<pcl::KdTreeFLANN<PointTreeseg>> &kdtrees, pcl::PointCloud<PointTreeseg>::Ptr &tree);
+void removeFarRegions(float dmin, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions);
+void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions, int cyclecount, int firstcount, float firstdistance, int nnearest, float seconddist, pcl::PointCloud<PointTreeseg>::Ptr &tree);
 treeparams getTreeParams(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, float zstep, float diffmax);

@@ -47,7 +47,7 @@ add_executable(getcrownvolume ${CMAKE_SOURCE_DIR}/src/getcrownvolume.cpp)
 target_link_libraries(getcrownvolume treeseg ${PCL_LIBRARIES})
 
 add_executable(segmentcrown ${CMAKE_SOURCE_DIR}/src/segmentcrown.cpp)
-target_link_libraries(segmentcrown treeseg leafsep ${PCL_LIBRARIES})
+target_link_libraries(segmentcrown treeseg ${PCL_LIBRARIES})
 
 add_executable(xyz2pcd ${CMAKE_SOURCE_DIR}/src/xyz2pcd.cpp)
 target_link_libraries(xyz2pcd treeseg ${PCL_LIBRARIES})

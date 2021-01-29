@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 		cyl.rad = cyl.rad*expansionfactor;
 		spatial3DCylinderFilter(plot,cyl,volume);
 		ss.str("");
-		ss << id[0] << ".intermediate.cylinder." << id[1] << ".pcd";
+		ss << id[0] << ".c." << id[1] << ".pcd";
 		writer.write(ss.str(),*volume,true);
 		std::cout << ss.str() << std::endl;
 		//
@@ -60,42 +60,18 @@ int main(int argc, char **argv)
 		extractIndices(bottom,inliers,true,vnoground);
 		*vnoground += *top;
 		ss.str("");
-		ss << id[0] << ".intermediate.cylinder.noground." << id[1] << ".pcd";
+		ss << id[0] << ".c.ng." << id[1] << ".pcd";
 		writer.write(ss.str(),*vnoground,true);
 		std::cout << ss.str() << std::endl;
-		//
-		//std::cout << "Euclidean clustering: " << std::flush;
-		//std::vector<std::vector<float>> nndata;
-		//nndata = dNNz(vnoground,3,2);
-		//float nnmin = std::numeric_limits<int>().max();
-		//float nnmax = 0;
-		//for(int i=0;i<nndata.size();i++)
-		//{
-		//	if(nndata[i][1] < nnmin) nnmin = nndata[i][1];
-		//	if(nndata[i][1] > nnmax) nnmax = nndata[i][1];
-		//}
-		//float dmax = (nnmax+nnmin)/2;
-		//std::cout << dmax << ", " << std::flush;
-		//std::vector<pcl::PointCloud<PointTreeseg>::Ptr> clusters;
-		//euclideanClustering(vnoground,dmax,6,clusters);
-		//ss.str("");
-		//ss << id[0] << ".intermediate.cylinder.noground.clusters." << id[1] << ".pcd";
-		//writeClouds(clusters,ss.str(),false);
-		//std::cout << ss.str() << std::endl;
-		//
-		//idx = findClosestIdx(foundstem,clusters,true);
-		//estimateNormals(clusters[idx],50,normals);		
-		//regionSegmentation(clusters[idx],normals,250,3,std::numeric_limits<int>::max(),smoothness,2,regions);
 		//
 		std::cout << "Region-based segmentation: " << std::flush; 
 		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> regions;
 		normals->clear();
 		estimateNormals(vnoground,50,normals);
 		float smoothness = std::stof(args[0]);
-		regionSegmentation(vnoground,normals,250,3,std::numeric_limits<int>::max(),smoothness,2,regions);
+		regionSegmentation(vnoground,normals,250,3,std::numeric_limits<int>::max(),smoothness,1,regions);
 		ss.str("");
-		//ss << id[0] << ".intermediate.cylinder.noground.clusters.regions." << id[1] << ".pcd";
-		ss << id[0] << ".intermediate.cylinder.noground.regions." << id[1] << ".pcd";
+		ss << id[0] << ".c.ng.r." << id[1] << ".pcd";
 		writeClouds(regions,ss.str(),false);
 		std::cout << ss.str() << std::endl;
 		//
