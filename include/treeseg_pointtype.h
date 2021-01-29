@@ -26,34 +26,36 @@
 
 #define PCL_NO_PRECOMPILE
 
+#define XYZRRDRS false
+
 #include <pcl/point_types.h>
 
 struct PointTreeseg
 {
 	PCL_ADD_POINT4D;
-/*
-	union
-	{
-		struct
+	#if XYZRRDRS == true
+		union
 		{
-			float range;
-			float reflectance;
+			struct
+			{
+				float range;
+				float reflectance;
+			};
+			float data_rr[4]; // 16bytes
 		};
-		float data_rr[4]; // 16bytes
-	};
-	union
-	{
-		struct
+		union
 		{
-			std::uint16_t deviation;
-			std::uint16_t return_number;
-			std::uint16_t scan_number;
+			struct
+			{
+				std::uint16_t deviation;
+				std::uint16_t return_number;
+				std::uint16_t scan_number;
+			};
+			std::uint16_t data_drs[4]; // 8bytes
 		};
-		std::uint16_t data_drs[4]; // 8bytes
-	};
-	//out of my depth here wrt memory alignment - unsure for second union
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-*/
+		//this may be poorly aligned (i.e., padding)
+		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+	#endif
 };
 POINT_CLOUD_REGISTER_POINT_STRUCT
 (
@@ -61,11 +63,11 @@ POINT_CLOUD_REGISTER_POINT_STRUCT
 	(float,x,x)
 	(float,y,y)
 	(float,z,z)
-/*
-	(float,range,range)
-	(float,reflectance,reflectance)
-	(std::uint16_t,deviation,deviation)
-	(std::uint16_t,return_number,return_number)
-	(std::uint16_t,scan_number,scan_number)
-*/
+	#if XYZRRDRS == true
+		(float,range,range)
+		(float,reflectance,reflectance)
+		(std::uint16_t,deviation,deviation)
+		(std::uint16_t,return_number,return_number)
+		(std::uint16_t,scan_number,scan_number)
+	#endif
 )

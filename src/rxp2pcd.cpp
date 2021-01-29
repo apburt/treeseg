@@ -8,6 +8,8 @@
 
 #include <riegl/scanlib.hpp>
 
+#include "treeseg.h"
+
 struct pcloud 
 {
 	std::vector<float> x,y,z;
@@ -52,7 +54,6 @@ class importer : public scanlib::pointcloud
 int main(int argc, char **argv)
 {
 	std::vector<std::string> args(argv+1,argv+argc);
-	bool basic = true; //true: x,y,z ; false: x,y,z,range,reflectance,deviation,return_number,scan_number
 	std::string top_dir = args[0];
 	if(top_dir[top_dir.length()-1] != '/') top_dir = top_dir + "/";
 	std::ifstream cfile;
@@ -199,14 +200,13 @@ int main(int argc, char **argv)
 								xyzfiles[n].write(reinterpret_cast<const char*>(&X),sizeof(X));
 								xyzfiles[n].write(reinterpret_cast<const char*>(&Y),sizeof(Y));
 								xyzfiles[n].write(reinterpret_cast<const char*>(&Z),sizeof(Z));
-								if(basic == false)
-								{
+								#if XYZRRDRS == true
 									xyzfiles[n].write(reinterpret_cast<const char*>(&pc.range[m]),sizeof(pc.range[m]));
 									xyzfiles[n].write(reinterpret_cast<const char*>(&pc.reflectance[m]),sizeof(pc.reflectance[m]));
 									xyzfiles[n].write(reinterpret_cast<const char*>(&pc.deviation[m]),sizeof(pc.deviation[m]));
 									xyzfiles[n].write(reinterpret_cast<const char*>(&pc.return_number[m]),sizeof(pc.return_number[m]));
 									xyzfiles[n].write(reinterpret_cast<const char*>(&pc.scan_number),sizeof(pc.scan_number));
-								}
+								#endif
 								tile_pointcount[n] += 1;
 							}
 						}
@@ -221,9 +221,12 @@ int main(int argc, char **argv)
 	}
 	for(int q=0;q<tile_count;q++)
 	{
-		std::ofstream headerstream("header.tmp");
-		if(basic == true) headerstream << "VERSION 0.7" << std::endl << "FIELDS x y z" << std::endl << "SIZE 4 4 4" << std::endl << "TYPE F F F" << std::endl << "COUNT 1 1 1" << std::endl << "WIDTH " << tile_pointcount[q] << std::endl << "HEIGHT 1" << std::endl << "VIEWPOINT 0 0 0 1 0 0 0" << std::endl << "POINTS " << tile_pointcount[q] << std::endl << "DATA binary" << std::endl;
-		if(basic == false) headerstream << "VERSION 0.7" << std::endl << "FIELDS x y z range reflectance deviation return_number scan_number" << std::endl << "SIZE 4 4 4 4 4 2 2 2" << std::endl << "TYPE F F F F F U U U" << std::endl << "COUNT 1 1 1 1 1 1 1 1" << std::endl << "WIDTH " << tile_pointcount[q] << std::endl << "HEIGHT 1" << std::endl << "VIEWPOINT 0 0 0 1 0 0 0" << std::endl << "POINTS " << tile_pointcount[q] << std::endl << "DATA binary" << std::endl;
+		std::ofstream headerstream("header.tmp");		
+		#if XYZRRDRS == true
+			headerstream << "VERSION 0.7" << std::endl << "FIELDS x y z range reflectance deviation return_number scan_number" << std::endl << "SIZE 4 4 4 4 4 2 2 2" << std::endl << "TYPE F F F F F U U U" << std::endl << "COUNT 1 1 1 1 1 1 1 1" << std::endl << "WIDTH " << tile_pointcount[q] << std::endl << "HEIGHT 1" << std::endl << "VIEWPOINT 0 0 0 1 0 0 0" << std::endl << "POINTS " << tile_pointcount[q] << std::endl << "DATA binary" << std::endl;
+		#else
+			headerstream << "VERSION 0.7" << std::endl << "FIELDS x y z" << std::endl << "SIZE 4 4 4" << std::endl << "TYPE F F F" << std::endl << "COUNT 1 1 1" << std::endl << "WIDTH " << tile_pointcount[q] << std::endl << "HEIGHT 1" << std::endl << "VIEWPOINT 0 0 0 1 0 0 0" << std::endl << "POINTS " << tile_pointcount[q] << std::endl << "DATA binary" << std::endl;
+		#endif
 		headerstream.close();
 		ss.str("");
 		ss << "cat header.tmp " << xyznames[q] << " > " << pcdnames[q] << "; rm header.tmp " << xyznames[q];
