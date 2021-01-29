@@ -222,10 +222,10 @@ int main(int argc, char **argv)
 	for(int q=0;q<tile_count;q++)
 	{
 		std::ofstream headerstream("header.tmp");		
-		#if XYZRRDRS == true
-			headerstream << "VERSION 0.7" << std::endl << "FIELDS x y z range reflectance deviation return_number scan_number" << std::endl << "SIZE 4 4 4 4 4 2 2 2" << std::endl << "TYPE F F F F F U U U" << std::endl << "COUNT 1 1 1 1 1 1 1 1" << std::endl << "WIDTH " << tile_pointcount[q] << std::endl << "HEIGHT 1" << std::endl << "VIEWPOINT 0 0 0 1 0 0 0" << std::endl << "POINTS " << tile_pointcount[q] << std::endl << "DATA binary" << std::endl;
-		#else
+		#if XYZRRDRS == false
 			headerstream << "VERSION 0.7" << std::endl << "FIELDS x y z" << std::endl << "SIZE 4 4 4" << std::endl << "TYPE F F F" << std::endl << "COUNT 1 1 1" << std::endl << "WIDTH " << tile_pointcount[q] << std::endl << "HEIGHT 1" << std::endl << "VIEWPOINT 0 0 0 1 0 0 0" << std::endl << "POINTS " << tile_pointcount[q] << std::endl << "DATA binary" << std::endl;
+		#else
+			headerstream << "VERSION 0.7" << std::endl << "FIELDS x y z range reflectance deviation return_number scan_number" << std::endl << "SIZE 4 4 4 4 4 2 2 2" << std::endl << "TYPE F F F F F U U U" << std::endl << "COUNT 1 1 1 1 1 1 1 1" << std::endl << "WIDTH " << tile_pointcount[q] << std::endl << "HEIGHT 1" << std::endl << "VIEWPOINT 0 0 0 1 0 0 0" << std::endl << "POINTS " << tile_pointcount[q] << std::endl << "DATA binary" << std::endl;
 		#endif
 		headerstream.close();
 		ss.str("");

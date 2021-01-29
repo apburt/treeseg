@@ -46,11 +46,14 @@ target_link_libraries(getcrownvolume treeseg ${PCL_LIBRARIES})
 add_executable(segmentcrown ${CMAKE_SOURCE_DIR}/src/segmentcrown.cpp)
 target_link_libraries(segmentcrown treeseg ${PCL_LIBRARIES})
 
-add_executable(xyz2pcd ${CMAKE_SOURCE_DIR}/src/xyz2pcd.cpp)
-target_link_libraries(xyz2pcd treeseg ${PCL_LIBRARIES})
-
-add_executable(pcd2xyz ${CMAKE_SOURCE_DIR}/src/pcd2xyz.cpp)
-target_link_libraries(pcd2xyz treeseg ${PCL_LIBRARIES})
-
 add_executable(sepwoodleaf ${CMAKE_SOURCE_DIR}/src/sepwoodleaf.cpp)
 target_link_libraries(sepwoodleaf treeseg leafsep ${PCL_LIBRARIES})
+
+add_executable(pcdTreeseg2txt ${CMAKE_SOURCE_DIR}/src/pcdTreeseg2txt.cpp)
+target_link_libraries(pcdTreeseg2txt treeseg ${PCL_LIBRARIES})
+
+add_executable(txtTreeseg2pcd ${CMAKE_SOURCE_DIR}/src/txtTreeseg2pcd.cpp)
+target_link_libraries(txtTreeseg2pcd treeseg ${PCL_LIBRARIES})
+
+add_executable(pcdXYZRGB2txt ${CMAKE_SOURCE_DIR}/src/pcdXYZRGB2txt.cpp)
+target_link_libraries(pcdXYZRGB2txt ${PCL_LIBRARIES})
