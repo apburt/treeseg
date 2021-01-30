@@ -31,6 +31,9 @@ target_link_libraries(nearestneighbour treeseg ${PCL_LIBRARIES})
 add_executable(downsample ${CMAKE_SOURCE_DIR}/src/downsample.cpp)
 target_link_libraries(downsample treeseg ${PCL_LIBRARIES})
 
+add_executable(thin ${CMAKE_SOURCE_DIR}/src/thin.cpp)
+target_link_libraries(thin treeseg ${PCL_LIBRARIES})
+
 add_executable(getdemslice ${CMAKE_SOURCE_DIR}/src/getdemslice.cpp)
 target_link_libraries(getdemslice treeseg ${PCL_LIBRARIES})
 
@@ -49,11 +52,11 @@ target_link_libraries(segmentcrown treeseg ${PCL_LIBRARIES})
 add_executable(sepwoodleaf ${CMAKE_SOURCE_DIR}/src/sepwoodleaf.cpp)
 target_link_libraries(sepwoodleaf treeseg leafsep ${PCL_LIBRARIES})
 
-add_executable(pcdTreeseg2txt ${CMAKE_SOURCE_DIR}/src/pcdTreeseg2txt.cpp)
-target_link_libraries(pcdTreeseg2txt treeseg ${PCL_LIBRARIES})
+add_executable(pcdPointTreeseg2txt ${CMAKE_SOURCE_DIR}/src/pcdPointTreeseg2txt.cpp)
+target_link_libraries(pcdPointTreeseg2txt treeseg ${PCL_LIBRARIES})
 
-add_executable(txtTreeseg2pcd ${CMAKE_SOURCE_DIR}/src/txtTreeseg2pcd.cpp)
-target_link_libraries(txtTreeseg2pcd treeseg ${PCL_LIBRARIES})
+add_executable(txtPointTreeseg2pcd ${CMAKE_SOURCE_DIR}/src/txtPointTreeseg2pcd.cpp)
+target_link_libraries(txtPointTreeseg2pcd treeseg ${PCL_LIBRARIES})
 
-add_executable(pcdXYZRGB2txt ${CMAKE_SOURCE_DIR}/src/pcdXYZRGB2txt.cpp)
-target_link_libraries(pcdXYZRGB2txt ${PCL_LIBRARIES})
+add_executable(pcdPointXYZRGB2txt ${CMAKE_SOURCE_DIR}/src/pcdPointXYZRGB2txt.cpp)
+target_link_libraries(pcdPointXYZRGB2txt ${PCL_LIBRARIES})

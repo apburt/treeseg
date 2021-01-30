@@ -97,6 +97,7 @@ void getBasicCloudMetrics(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, basic
 //Downsampling
 
 void downsample(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered, bool octree=true);
+void thin(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered);
 
 //Spatial filters
 
@@ -131,7 +132,6 @@ void cylinderDiagnostics(cylinder &cyl, int nnearest);
 bool sort2DFloatVectorByCol1(const std::vector<float> &v1, const std::vector<float> &v2);
 bool sort2DFloatVectorByCol2(const std::vector<float> &v1, const std::vector<float> &v2);
 bool sortCloudByZ(const PointTreeseg &p1, const PointTreeseg &p2);
-std::vector<int> nearestIdx(const pcl::PointCloud<PointTreeseg>::Ptr &searchpoints, const pcl::PointCloud<PointTreeseg>::Ptr &cloud);
 int findClosestIdx(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, bool biggest);
 int findPrincipalCloudIdx(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds);
 void extractIndices(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const pcl::PointIndices::Ptr &inliers, bool invert, pcl::PointCloud<PointTreeseg>::Ptr &filtered);

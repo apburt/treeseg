@@ -309,6 +309,32 @@ void downsample(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgele
 	}
 }
 
+void thin(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered)
+{
+	pcl::octree::OctreePointCloudSearch<PointTreeseg> octree(edgelength);
+	octree.setInputCloud(original);
+	octree.defineBoundingBox();
+	octree.addPointsFromInputCloud();
+	pcl::PointCloud<PointTreeseg>::VectorType voxelcentres;
+	octree.getOccupiedVoxelCenters(voxelcentres);
+	for(int i=0;i<voxelcentres.size();i++)
+	{
+		std::vector<int> voxelinliersidx;
+		octree.voxelSearch(voxelcentres[i],voxelinliersidx);
+		pcl::PointCloud<PointTreeseg>::Ptr voxelinliers(new pcl::PointCloud<PointTreeseg>);
+		for(int j=0;j<voxelinliersidx.size();j++) voxelinliers->insert(voxelinliers->end(),original->points[voxelinliersidx[j]]);
+		PointTreeseg centroid;
+		pcl::computeCentroid(*voxelinliers,centroid);
+		pcl::KdTreeFLANN<PointTreeseg> kdtree;
+		kdtree.setInputCloud(voxelinliers);
+		int K = voxelinliers->points.size();
+		std::vector<int> pointIdx(K);
+		std::vector<float> pointDist(K);
+		kdtree.nearestKSearch(centroid,K,pointIdx,pointDist);
+		filtered->insert(filtered->end(),voxelinliers->points[pointIdx[0]]);
+	}
+}
+
 //Spatial Filters
 
 void spatial1DFilter(const pcl::PointCloud<PointTreeseg>::Ptr &original, std::string dimension, float min, float max, pcl::PointCloud<PointTreeseg>::Ptr &filtered)
@@ -588,21 +614,6 @@ bool sort2DFloatVectorByCol2(const std::vector<float> &v1, const std::vector<flo
 bool sortCloudByZ(const PointTreeseg &p1, const PointTreeseg &p2)
 {
 	return p1.z < p2.z;
-}
-
-std::vector<int> nearestIdx(const pcl::PointCloud<PointTreeseg>::Ptr &searchpoints, const pcl::PointCloud<PointTreeseg>::Ptr &cloud)
-{
-	std::vector<int> idxs;
-	pcl::KdTreeFLANN<PointTreeseg> tree;
-	tree.setInputCloud(cloud);
-	for(int i=0;i<searchpoints->points.size();i++)
-	{
-		std::vector<int> pointIdxNKNSearch(1);
-		std::vector<float> pointNKNSquaredDistance(1);
-		tree.nearestKSearch(searchpoints->points[i],1,pointIdxNKNSearch,pointNKNSquaredDistance);
-		idxs.push_back(pointIdxNKNSearch[0]);
-	}
-	return idxs;
 }
 
 int findClosestIdx(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, bool biggest)
