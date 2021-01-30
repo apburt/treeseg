@@ -281,28 +281,31 @@ void getBasicCloudMetrics(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, basic
 
 void downsample(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered, bool octree)
 {
-	if(octree == true)
-	{
-		pcl::octree::OctreePointCloudVoxelCentroid<PointTreeseg> octree(edgelength);
-		octree.setInputCloud(original);
-		octree.defineBoundingBox();
-		octree.addPointsFromInputCloud();	
-		pcl::PointCloud<PointTreeseg>::VectorType centroids;
-		octree.getVoxelCentroids(centroids);
-		pcl::PointCloud<PointTreeseg>::Ptr tmp(new pcl::PointCloud<PointTreeseg>);
-		tmp->points.assign(centroids.begin(),centroids.end());
-		tmp->width = centroids.size();
-		tmp->height = 1;
-		tmp->is_dense = false;
-		std::vector<int> ind;
-		pcl::removeNaNFromPointCloud(*tmp,*filtered,ind);	
-	}
 	if(octree == false)
 	{
 		pcl::VoxelGrid<PointTreeseg> downsample;
 		downsample.setInputCloud(original);
 		downsample.setLeafSize(edgelength,edgelength,edgelength);
 		downsample.filter(*filtered);
+	}
+	else
+	{
+		pcl::octree::OctreePointCloudSearch<PointTreeseg> octree(edgelength);
+		octree.setInputCloud(original);
+		octree.defineBoundingBox();
+		octree.addPointsFromInputCloud();
+		pcl::PointCloud<PointTreeseg>::VectorType voxelcentres;
+		octree.getOccupiedVoxelCenters(voxelcentres);
+		for(int i=0;i<voxelcentres.size();i++)
+		{
+			std::vector<int> voxelinliersidx;
+			octree.voxelSearch(voxelcentres[i],voxelinliersidx);
+			pcl::PointCloud<PointTreeseg>::Ptr voxelinliers(new pcl::PointCloud<PointTreeseg>);
+			for(int j=0;j<voxelinliersidx.size();j++) voxelinliers->insert(voxelinliers->end(),original->points[voxelinliersidx[j]]);
+			PointTreeseg centroid;
+			pcl::computeCentroid(*voxelinliers,centroid);
+			filtered->insert(filtered->end(),centroid);
+		}
 	}
 }
 
