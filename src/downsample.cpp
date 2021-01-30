@@ -8,6 +8,7 @@ int main(int argc, char **argv)
 {
 	std::vector<std::string> args(argv+1,argv+argc);
 	float edgelength = std::stof(args[0]);
+	bool otree = true;
 	pcl::PCDReader reader;
 	pcl::PCDWriter writer;
 	pcl::PointCloud<PointTreeseg>::Ptr original(new pcl::PointCloud<PointTreeseg>);
