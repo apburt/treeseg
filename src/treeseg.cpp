@@ -309,7 +309,7 @@ void downsample(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgele
 	}
 }
 
-void thin(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered)
+void thin(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, pcl::PointCloud<PointTreeseg>::Ptr &filtered, bool preservePointClosestToVoxelCentroid)
 {
 	pcl::octree::OctreePointCloudSearch<PointTreeseg> octree(edgelength);
 	octree.setInputCloud(original);
@@ -331,7 +331,21 @@ void thin(const pcl::PointCloud<PointTreeseg>::Ptr &original, float edgelength, 
 		std::vector<int> pointIdx(K);
 		std::vector<float> pointDist(K);
 		kdtree.nearestKSearch(centroid,K,pointIdx,pointDist);
-		filtered->insert(filtered->end(),voxelinliers->points[pointIdx[0]]);
+		#if XYZRRDRS == true
+			if(preservePointClosestToVoxelCentroid == true)
+			{
+				filtered->insert(filtered->end(),voxelinliers->points[pointIdx[0]]);
+			}
+			else
+			{
+				pcl::PointCloud<PointTreeseg>::Ptr sortedvoxelinliers(new pcl::PointCloud<PointTreeseg>);
+				for(int k=0;k<pointIdx.size();k++) sortedvoxelinliers->insert(sortedvoxelinliers->end(),voxelinliers->points[pointIdx[k]]);
+				std::sort(sortedvoxelinliers->points.begin(),sortedvoxelinliers->points.end(),sortCloudByDeviation); //change this for any of RRDRS
+				filtered->insert(filtered->end(),sortedvoxelinliers->points[0]);
+			}
+		#else
+			filtered->insert(filtered->end(),voxelinliers->points[pointIdx[0]]);
+		#endif
 	}
 }
 
@@ -601,20 +615,19 @@ void cylinderDiagnostics(cylinder &cyl, int nnearest)
 
 //Generic
 
-bool sort2DFloatVectorByCol1(const std::vector<float> &v1, const std::vector<float> &v2)
-{
-        return v1[1] < v2[1];
-}
+bool sortCloudByX(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.x < p2.x;}
+bool sortCloudByY(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.y < p2.y;}
+bool sortCloudByZ(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.z < p2.z;}
+#if XYZRRDRS == true
+bool sortCloudByRange(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.range < p2.range;}
+bool sortCloudByReflectance(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.reflectance < p2.reflectance;}
+bool sortCloudByDeviation(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.deviation < p2.deviation;}
+bool sortCloudByReturnNumber(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.return_number < p2.return_number;}
+bool sortCloudByScanNumber(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.scan_number < p2.scan_number;}
+#endif
 
-bool sort2DFloatVectorByCol2(const std::vector<float> &v1, const std::vector<float> &v2)
-{
-        return v1[2] < v2[2];
-}
-
-bool sortCloudByZ(const PointTreeseg &p1, const PointTreeseg &p2)
-{
-	return p1.z < p2.z;
-}
+bool sort2DFloatVectorByCol1(const std::vector<float> &v1, const std::vector<float> &v2) {return v1[1] < v2[1];}
+bool sort2DFloatVectorByCol2(const std::vector<float> &v1, const std::vector<float> &v2) {return v1[2] < v2[2];}
 
 int findClosestIdx(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, bool biggest)
 {
