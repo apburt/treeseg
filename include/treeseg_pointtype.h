@@ -54,8 +54,8 @@ struct PointTreeseg
 			std::uint16_t data_drs[4]; // 8bytes
 		};
 		//this may be poorly aligned (i.e., padding)
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	#endif
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 POINT_CLOUD_REGISTER_POINT_STRUCT
 (
