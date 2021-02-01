@@ -72,7 +72,7 @@ int main(int argc, char **argv)
 			//
 			std::cout << "Building tree: " << std::flush;
 			pcl::PointCloud<PointTreeseg>::Ptr tree(new pcl::PointCloud<PointTreeseg>);
-			buildTree(regions,15,1,0.2,5,1.0,tree);
+			buildTree(regions,20,1,0.2,5,1.0,tree);
 			ss.str("");
 			ss << id[0] << "_" << id[1] << ".pcd";
 			writer.write(ss.str(),*tree,true);
