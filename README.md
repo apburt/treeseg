@@ -4,15 +4,12 @@ Extract individual trees from lidar point clouds
 
 <img src="/doc/images/treeseg_cover.png" width="500">
 
-## Description
-
-treeseg has been developed to near-automatically extract tree-level point clouds from high-density larger-area lidar point clouds acquired in forests. A formal, albeit somewhat outdated description of the methods can be found in our paper available [here](https://doi.org/10.1111/2041-210X.13121).
-
 ## Table of contents
 
+- [Overview](#overview)
 - [Installation](#installation)
-- [Tutorial](#usage)
-  - [Overview](/doc/tutorial_overview.md)
+- [Usage](#usage)
+  - [Tutorial overview](/doc/tutorial_overview.md)
   - [Preprocessing](/doc/tutorial_preprocessing.md)
   - [Downsampling](/doc/tutorial_downsample.md)
   - [Digital terrain model](/doc/tutorial_getdemslice.md)
@@ -24,6 +21,10 @@ treeseg has been developed to near-automatically extract tree-level point clouds
 - [Authors](#authors)
 - [Citation](#citation)
 - [License](#license)
+
+## Overview
+
+treeseg has been developed to near-automatically extract tree-level point clouds from high-density larger-area lidar point clouds acquired in forests. A formal, albeit somewhat outdated description of the methods can be found in our paper available [here](https://doi.org/10.1111/2041-210X.13121).
 
 ## Installation
 
@@ -53,7 +54,7 @@ A tutorial demonstrating the usage of treeseg is currently under construction [h
 
 ## Acknowledgements
 
-* treeseg makes extensive use of the Point Cloud Library ([PCL](http://pointclouds.org)).
+treeseg makes extensive use of the Point Cloud Library ([PCL](http://pointclouds.org)).
 
 ## Authors
 
@@ -69,7 +70,7 @@ treeseg can be cited using:
 
 Burt, A., Disney, M., Calders, K. (2019). Extracting individual trees from lidar point clouds using *treeseg*. *Methods Ecol Evol* 10(3), 438–445. doi: 10.1111/2041-210X.13121
 
-A doi for the latest version of treeseg is available in [releases](/releases).
+A doi for the latest version of treeseg is available in [releases](https://github.com/apburt/treeseg/releases).
 
 ## License
 
