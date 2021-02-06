@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(treeseg)
 
-find_package(PCL 1.9 REQUIRED)
-find_package(Armadillo 9.6 REQUIRED)
+find_package(PCL 1.10 REQUIRED)
+find_package(Armadillo 9.8 REQUIRED)
 
 include_directories(${PCL_INCLUDE_DIRS} ${ARMADILLO_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include/riegl)
 link_directories(${CMAKE_SOURCE_DIR}/lib ${CMAKE_SOURCE_DIR}/lib/riegl)
