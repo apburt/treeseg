@@ -28,7 +28,7 @@ treeseg has been developed to near-automatically extract tree-level point clouds
 
 ## Installation
 
-treeseg has been developed and tested on Ubuntu 20.04 LTS only, and has the following dependencies:
+treeseg has been developed and tested on Ubuntu 20.04 LTS only, and is dependent on the following packages:
 
 * Point Cloud Library (v1.10 or later)
 * Armadillo (v9.8 or later)
@@ -66,7 +66,7 @@ treeseg makes extensive use of the Point Cloud Library ([PCL](http://pointclouds
 
 ## Citation
 
-treeseg can be cited using:
+treeseg can be cited as:
 
 Burt, A., Disney, M., Calders, K. (2019). Extracting individual trees from lidar point clouds using *treeseg*. *Methods Ecol Evol* 10(3), 438–445. doi: 10.1111/2041-210X.13121
 
