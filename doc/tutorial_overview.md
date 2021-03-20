@@ -4,13 +4,13 @@ The objective of this tutorial is to explain and demonstrate the usage of treese
 
 ## Primer
 
-If you plan to extensively use or develop treeseg, familiarisation with the various point cloud processing methods used in treeseg might be useful. A brief overview of these methods can be found in our paper available [here](https://doi.org/10.1111/2041-210X.13121).
+If you plan to extensively use or develop treeseg, familiarisation with the various point cloud processing methods used in treeseg might be useful. A brief overview of these methods can be found in our [paper](https://doi.org/10.1111/2041-210X.13121).
 
-treeseg uses the Point Cloud Libray (PCL) to implement these methods, and the PCL [website](https://pointclouds.org/) provides good tutorials. The most relevant are: Basic Usage, Features, Filtering, KdTree, Octree, Sample Consensus and Segmentation.
+treeseg uses the Point Cloud Libray (PCL) to implement these methods, and the PCL [website](https://pointclouds.org/) provides good generic tutorials. The most relevant are: Basic Usage, Features, Filtering, KdTree, Octree, Sample Consensus and Segmentation.
 
 ## Data
 
-The terrestrial lidar data used in this tutorial were collected from one hectare of old-growth intact tropical rainforest in French Guiana. These data, and a more complete description, are available from: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4497751.svg)](https://doi.org/10.5281/zenodo.4497751)
+The terrestrial lidar data used in this tutorial were collected from one hectare of old-growth intact tropical rainforest in French Guiana. These data, and a more complete description, are available via [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4497751.svg)](https://doi.org/10.5281/zenodo.4497751)
 
 It is assumed the following directory structure has been created:
 
@@ -38,7 +38,7 @@ unzip '2015-11-10.001.riproject.part?.zip';
 
 ## Prerequisites
 
-This tutorial assumes treeseg has been successfully compiled, including the rxp2pcd executable (see [here](../README.md#installation)).
+It is assumed treeseg has been successfully compiled, including the rxp2pcd executable (see [here](../README.md#installation)).
 
 Several other packages are also required, which can be installed via apt:
 
