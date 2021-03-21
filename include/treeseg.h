@@ -151,7 +151,7 @@ void catIntersectingClouds(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clou
 
 //treeseg specific
 
-std::vector<std::vector<float>> getDemAndSlice(const pcl::PointCloud<PointTreeseg>::Ptr &plot, float resolution, float percentile, float zmin, float zmax, pcl::PointCloud<PointTreeseg>::Ptr &slice);
+std::vector<std::vector<float>> getDtmAndSlice(const pcl::PointCloud<PointTreeseg>::Ptr &plot, float resolution, float percentile, float zmin, float zmax, pcl::PointCloud<PointTreeseg>::Ptr &slice);
 void correctStem(const pcl::PointCloud<PointTreeseg>::Ptr &stem, float nnearest, float zstart, float zstep, float stepcovmax, float radchangemin, pcl::PointCloud<PointTreeseg>::Ptr &corrected);
 void removeFarRegions(float dmin, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions);
 void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions, int cyclecount, int firstcount, float firstdistance, int nnearest, float seconddist, pcl::PointCloud<PointTreeseg>::Ptr &tree);

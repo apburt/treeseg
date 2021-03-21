@@ -798,7 +798,7 @@ void catIntersectingClouds(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clou
 
 //treeseg specific
 
-std::vector<std::vector<float>> getDemAndSlice(const pcl::PointCloud<PointTreeseg>::Ptr &plot, float resolution, float percentile, float zmin, float zmax, pcl::PointCloud<PointTreeseg>::Ptr &slice)
+std::vector<std::vector<float>> getDtmAndSlice(const pcl::PointCloud<PointTreeseg>::Ptr &plot, float resolution, float percentile, float zmin, float zmax, pcl::PointCloud<PointTreeseg>::Ptr &slice)
 {
 	std::vector<std::vector<float>> dem;
 	std::vector<float> result;

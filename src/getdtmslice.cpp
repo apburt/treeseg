@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 	ss << id[0] << ".slice.pcd";
 	std::vector<std::vector<float>> dem;
 	pcl::PointCloud<PointTreeseg>::Ptr slice(new pcl::PointCloud<PointTreeseg>);
-	dem = getDemAndSlice(plotcloud,resolution,percentile,zmin,zmax,slice);
+	dem = getDtmAndSlice(plotcloud,resolution,percentile,zmin,zmax,slice);
 	for(int j=0;j<dem.size();j++) std::cout << dem[j][0] << " " << dem[j][1] << " " << dem[j][2] << std::endl;
 	writer.write(ss.str(),*slice,true);
 	return 0;

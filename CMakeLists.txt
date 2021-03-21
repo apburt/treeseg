@@ -34,8 +34,8 @@ target_link_libraries(downsample treeseg ${PCL_LIBRARIES})
 add_executable(thin ${CMAKE_SOURCE_DIR}/src/thin.cpp)
 target_link_libraries(thin treeseg ${PCL_LIBRARIES})
 
-add_executable(getdemslice ${CMAKE_SOURCE_DIR}/src/getdemslice.cpp)
-target_link_libraries(getdemslice treeseg ${PCL_LIBRARIES})
+add_executable(getdtmslice ${CMAKE_SOURCE_DIR}/src/getdtmslice.cpp)
+target_link_libraries(getdtmslice treeseg ${PCL_LIBRARIES})
 
 add_executable(findstems ${CMAKE_SOURCE_DIR}/src/findstems.cpp)
 target_link_libraries(findstems treeseg ${PCL_LIBRARIES})
