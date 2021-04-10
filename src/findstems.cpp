@@ -1,5 +1,3 @@
-//Andrew Burt - a.burt@ucl.ac.uk
-
 #include "treeseg.h"
 
 #include <pcl/io/pcd_io.h>
@@ -48,7 +46,7 @@ int main(int argc, char **argv)
 	std::cout << ss.str() << " | " << regions.size() << std::endl;
 	//
 	std::cout << "RANSAC cylinder fits: " << std::flush;
-	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> cyls;
+	std::vector<std::pair<float,pcl::PointCloud<PointTreeseg>::Ptr>> cylinders;
 	nnearest = 60;
 	float dmin = std::stof(args[1]);
 	float dmax = std::stof(args[2]);
@@ -69,13 +67,14 @@ int main(int argc, char **argv)
 	float xmax = coords[1];
 	float ymin = coords[2];
 	float ymax = coords[3];
-	float lmin = 2.25; //assuming 3m slice
-	float stepcovmax = 0.2;
-	float radratiomin = 0.8;
+	float lmin = 2.5; //assumes 3m slice
+	float stepcovmax = 0.1;
+	float radratiomin = 0.9;
 	for(int i=0;i<regions.size();i++)
 	{
 		cylinder cyl;
 		fitCylinder(regions[i],nnearest,true,true,cyl);
+		//std::cout << cyl.ismodel << " " << cyl.rad << " " << cyl.len << " " << cyl.stepcov << " " << cyl.radratio << " " << cyl.x << " " << cyl.y << std::endl;
 		if(cyl.ismodel == true)
 		{		
 			if(cyl.rad*2 >= dmin && cyl.rad*2 <= dmax && cyl.len >= lmin)
@@ -86,13 +85,16 @@ int main(int argc, char **argv)
 					{
 						if(cyl.y >= ymin && cyl.y <= ymax)
 						{
-							cyls.push_back(cyl.inliers);
+							cylinders.push_back(std::make_pair(cyl.rad,cyl.inliers));
 						}
 					}
 				}
 			}
 		}
 	}
+	std::sort(cylinders.rbegin(),cylinders.rend());
+	std::vector<pcl::PointCloud<PointTreeseg>::Ptr> cyls;
+	for(int i=0;i<cylinders.size();i++) cyls.push_back(cylinders[i].second);
 	ss.str("");
 	ss << id[0] << ".intermediate.slice.clusters.regions.cylinders.pcd";
 	writeClouds(cyls,ss.str(),false);
@@ -134,7 +136,7 @@ int main(int argc, char **argv)
 		ss << id[0] << ".cluster." << m << ".pcd";
 		writer.write(ss.str(),*stems[m],true);
 	}
-	std::cout << ss.str() << " | " << stems.size() << std::endl;
+	std::cout << stems.size() << std::endl;
 	//
 	return 0;
 }

@@ -1,5 +1,3 @@
-//Andrew Burt - a.burt@ucl.ac.uk
-
 #include <pcl/io/pcd_io.h>
 
 int main (int argc, char **argv)

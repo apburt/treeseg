@@ -1,5 +1,3 @@
-//Andrew Burt - a.burt@ucl.ac.uk
-
 #include "leafsep.h"
 
 #include <pcl/io/pcd_io.h>

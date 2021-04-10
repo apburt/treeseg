@@ -38,11 +38,11 @@ git clone https://github.com/apburt/treeseg.git;
 mkdir ./treeseg/build; cd ./treeseg/build; cmake ..; make;
 ```
 
-Optionally, for users with RIEGL V-Line scan data, treeseg includes the executable rxp2pcd, to convert data in RXP data stream format to binary PCD format. This executable will be automatically built if the directories ./treeseg/include/reigl/ and ./treeseg/lib/riegl/ are populated with the RIEGL RiVLIB headers and libraries (as appropriate for the user's particular CPU architecture and gcc version), which can be downloaded from the Members Area of the RIEGL website (e.g., rivlib-2_5_10-x86_64-linux-gcc9.zip). 
+Optionally, for users with RIEGL V-Line scan data, treeseg includes the executable rxp2pcd, to convert and preprocess data in RXP data stream format, to binary PCD format. This executable will be automatically built if the directories ./treeseg/include/reigl/ and ./treeseg/lib/riegl/ are populated with the RIEGL RiVLIB headers and libraries (as appropriate for the user's particular CPU architecture and gcc version), which can be downloaded from the Members Area of the RIEGL website (e.g., rivlib-2_5_10-x86_64-linux-gcc9.zip). 
 
 ## Usage
 
-A tutorial demonstrating the usage of treeseg is currently under construction [here](/doc/tutorial_overview.md), which will explain the various steps required to extract the 10 largest trees from an example one hectare stand of intact old-growth tropical rainforest.
+A tutorial demonstrating the usage of treeseg is available [here](/doc/tutorial_overview.md).
 
 ## Acknowledgements
 
@@ -62,8 +62,8 @@ treeseg can be cited as:
 
 Burt, A., Disney, M., Calders, K. (2019). Extracting individual trees from lidar point clouds using *treeseg*. *Methods Ecol Evol* 10(3), 438–445. doi: 10.1111/2041-210X.13121
 
-A doi for the latest version of treeseg is available in [releases](https://github.com/apburt/treeseg/releases).
+A doi for the latest version is available in [releases](https://github.com/apburt/treeseg/releases).
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the terms of the MIT license - see the [LICENSE](LICENSE) file for details.

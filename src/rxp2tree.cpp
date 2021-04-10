@@ -1,5 +1,3 @@
-//Andrew Burt - a.burt@ucl.ac.uk
-
 #include <fstream>
 #include <riegl/scanlib.hpp>
 
