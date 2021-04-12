@@ -1,12 +1,12 @@
 # Tutorial
 
-The objective of this tutorial is to demonstrate the usage of treeseg, by extracting 10 of largest trees inside a complex forest scene.
+The objective of this tutorial is to demonstrate the usage of treeseg, by extracting 10 of the largest trees inside a complex forest scene.
 
 ## Primer
 
 If you plan to extensively use or develop treeseg, it might first be useful to familiarise yourself with the various point cloud processing methods that are used. A brief overview of these methods can be found in our [paper](https://doi.org/10.1111/2041-210X.13121).
 
-treeseg uses the Point Cloud Libray (PCL) to implement these methods, and the PCL [website](https://pointclouds.org/) provides good generic tutorials. The most relevant are: Basic Usage, Features, Filtering, KdTree, Octree, Sample Consensus and Segmentation.
+treeseg uses the Point Cloud Libray (PCL) to implement these methods, and the [PCL website](https://pointclouds.org/) provides good generic tutorials. The most relevant are: Basic Usage, Features, Filtering, KdTree, Octree, Sample Consensus and Segmentation.
 
 ## Prerequisites
 

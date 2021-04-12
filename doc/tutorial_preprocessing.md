@@ -2,7 +2,7 @@
 
 ## The larger-area point cloud
 
-The primary input to treeseg is some larger-area point cloud collected in a forest scene (e.g., in this tutorial, the point cloud representing the 1ha tropical rainforest plot in French Guiana). It is expected that this point cloud is stored in binary or ascii [PCD format](https://pcl.readthedocs.io/projects/tutorials/en/latest/pcd_file_format.html). By default, the expected point fields are the Cartesian coordinates (x, y, z) of each point, but additional fields can be included (as described in the following subsection). It is also expected that the larger-area point cloud is broken into N tiles (Nmin = 1), using the following strict naming convention:
+The primary input to treeseg is some larger-area point cloud collected in a forest scene (e.g., in this tutorial, the point cloud representing the 1ha tropical rainforest plot in French Guiana). It is expected that this point cloud is stored in binary or ASCII [PCD format](https://pcl.readthedocs.io/projects/tutorials/en/latest/pcd_file_format.html). By default, the expected point fields are the Cartesian coordinates (x, y, z) of each point, but additional fields can be included (as described in the following subsection). It is also expected that the larger-area point cloud is broken into N tiles (Nmin = 1), using the following strict naming convention:
 
 ```
 mycloud.tile.0.pcd
@@ -23,7 +23,7 @@ An example of how this can be implemented is provided by the preprocessor macro 
 
 In this tutorial we only consider preprocessing lidar data stored in RIEGL's RXP data stream format, to the abovedescribed expected tiled PCD format. However, various open-source tools are available for converting lidar data in other formats (e.g., LAS).
 
-The lidar data downloaded during the previous step are preprocessed using the rxp2pcd executable. The overall x-y limits of the tiles are defined by the coordinates of a bounding box, which here, we want dictated by the plot boundaries, which can be approximated from the scan locations via the transformation matrices in ./treeseg_tutorial/data/matrix/ using plotcoords:
+The raw lidar data downloaded during the previous step (i.e., option 1) are preprocessed using the rxp2pcd executable. The overall x-y limits of the tiles are defined by the coordinates of a bounding box, which here, we want dictated by the plot boundaries, which can be approximated from the scan locations via the transformation matrices in ./treeseg_tutorial/data/matrix/ using plotcoords:
 
 ```
 cd ../processing/;
