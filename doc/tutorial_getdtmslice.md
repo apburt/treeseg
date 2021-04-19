@@ -1,6 +1,6 @@
 # Digital terrain model
 
-The first major step of treeseg is to identify the individual trees in the larger-area point cloud. This identification is undertaken on a slice segmented from the larger-area point cloud along the xy-plane. To generate this slice at some defined height above-ground whilst adjusting for topography, it is necessary to construct an underlying digital terrain model (DTM). Both this DTM, and the slice can be generated using:
+The first principal step of treeseg is to identify the individual trees in the larger-area point cloud. This identification is undertaken on a slice segmented from the larger-area point cloud along the xy-plane. To generate this slice at some defined height above-ground whilst adjusting for topography, it is necessary to construct an underlying digital terrain model (DTM). Both this DTM, and the slice can be generated using:
 
 ```
 getdtmslice 2 2.5 3 6 NOU11.tile.downsample.*.pcd > NOU11.dtm.dat
@@ -14,7 +14,7 @@ The resulting slice can be viewed using:
 pcl_viewer NOU11.slice.pcd
 ```
 
-Which looks something similar to:
+Which will look something similar to:
 
 <img src="/doc/images/slice.png" width="750">
 

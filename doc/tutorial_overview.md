@@ -1,6 +1,10 @@
 # Tutorial
 
-The objective of this tutorial is to demonstrate the usage of treeseg, by extracting 10 of the largest trees inside a complex forest scene.
+The objective of this tutorial is to demonstrate the usage of treeseg, by extracting the 10 largest trees inside a complex forest scene.
+
+## TL;DR
+
+See [here](tutorial_tldr.md).
 
 ## Primer
 
@@ -36,7 +40,7 @@ It is assumed the following folders have been created:
 
 ### Option 1 (recommended): Raw lidar data
 
-If the rxp2pcd executable has been compiled (see [here](../README.md#installation)), then the raw lidar data should be downloaded:
+If the `rxp2pcd` executable has been compiled (see [here](../README.md#installation)), then the raw lidar data should be downloaded:
 
 ```
 cd ./treeseg_tutorial/data/;
@@ -50,7 +54,7 @@ unzip '2015-11-10.001.riproject.part?.zip';
 
 ### Option 2: Preprocessed lidar data
 
-If the rxp2pcd executable could not been compiled (e.g., it was not possible to access and download the RIEGL RiVLIB headers and libraries), then the preprocessed data should be downloaded. It is also necessary to create a file that contains the coordinates of plot boundaries (discussed further in the following section):
+If the `rxp2pcd` executable could not been compiled (e.g., it was not possible to access and download the RIEGL RiVLIB headers and libraries), then the preprocessed data should be downloaded. It is also necessary to create a file containing the coordinates of plot boundaries (discussed further in the following section):
 
 ```
 cd ./treeseg_tutorial/processing/;
