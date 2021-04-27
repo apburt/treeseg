@@ -132,6 +132,7 @@ void cylinderDiagnostics(cylinder &cyl, int nnearest);
 bool sortCloudByX(const PointTreeseg &p1, const PointTreeseg &p2);
 bool sortCloudByY(const PointTreeseg &p1, const PointTreeseg &p2);
 bool sortCloudByZ(const PointTreeseg &p1, const PointTreeseg &p2);
+bool sortCloudByDescEuclidDist(const PointTreeseg &p1, const PointTreeseg &p2);
 #if XYZRRDRS == true
 bool sortCloudByRange(const PointTreeseg &p1, const PointTreeseg &p2);
 bool sortCloudByReflectance(const PointTreeseg &p1, const PointTreeseg &p2);
@@ -139,6 +140,7 @@ bool sortCloudByDeviation(const PointTreeseg &p1, const PointTreeseg &p2);
 bool sortCloudByReturnNumber(const PointTreeseg &p1, const PointTreeseg &p2);
 bool sortCloudByScanNumber(const PointTreeseg &p1, const PointTreeseg &p2);
 #endif
+bool equalPoint(const PointTreeseg &p1, const PointTreeseg &p2);
 bool sort2DFloatVectorByCol1(const std::vector<float> &v1, const std::vector<float> &v2);
 bool sort2DFloatVectorByCol2(const std::vector<float> &v1, const std::vector<float> &v2);
 int findClosestIdx(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds, bool biggest);
@@ -148,6 +150,7 @@ float minDistBetweenClouds(const pcl::PointCloud<PointTreeseg>::Ptr &a, const pc
 float minDistBetweenClouds(const pcl::PointCloud<PointTreeseg>::Ptr &a, const pcl::PointCloud<PointTreeseg>::Ptr &b, const pcl::KdTreeFLANN<PointTreeseg> &kdtree);
 bool intersectionTest3DBox(const Eigen::Vector4f &amin, const Eigen::Vector4f &amax, const Eigen::Vector4f &bmin, const Eigen::Vector4f &bmax);
 void catIntersectingClouds(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clouds);
+void removeDuplicatePoints(pcl::PointCloud<PointTreeseg>::Ptr &cloud);
 
 //treeseg specific
 

@@ -23,9 +23,9 @@ getdtmslice 2 2.5 3 6 NOU11.tile.downsample.*.pcd > NOU11.dtm.dat;
 cd ./clusters/;
 findstems 4 0.2 2 ../NOU11.coords.dat ../NOU11.slice.pcd;
 cd ../stems/;
-segmentstem 5 ../clusters/NOU11.cluster.?.pcd ../NOU11.tile.downsample.*.pcd;
+segmentstem 4 ../clusters/NOU11.cluster.?.pcd ../NOU11.tile.downsample.*.pcd;
 cd ../volumes/;
-getcrownvolume ../stems/NOU11.stem.*.pcd ../NOU11.tile.downsample.*.pcd;
+getcrownvolume 0.66 ../stems/NOU11.stem.*.pcd ../NOU11.tile.downsample.*.pcd;
 cd ../trees/;
 segmentcrown 5 0 ../volumes/NOU11.volume.*.pcd;
 ```

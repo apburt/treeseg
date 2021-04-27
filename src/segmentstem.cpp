@@ -47,8 +47,8 @@ int main(int argc, char **argv)
 		pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
 		pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
 		std::sort(volume->points.begin(),volume->points.end(),sortCloudByZ);
-		int idx = (2.5/100) * volume->points.size();
-		float ground = volume->points[idx].z;
+		int groundidx = (2.5/100) * volume->points.size();
+		float ground = volume->points[groundidx].z;
 		Eigen::Vector4f min, max;
 		pcl::getMinMax3D(*volume,min,max);
 		spatial1DFilter(volume,"z",ground-1,ground+3.5,bottom);
@@ -75,13 +75,14 @@ int main(int argc, char **argv)
 		//
 		std::cout << "Correcting stem: " << std::flush;
 		pcl::PointCloud<PointTreeseg>::Ptr stem(new pcl::PointCloud<PointTreeseg>);
-		idx = findClosestIdx(foundstem,regions,true);
-		nnearest = 60;
-		float zdelta = 0.75;
-		float zstart = 5;
-		float stepcovmax = 0.05;
-		float radchangemin = 0.9;
-		correctStem(regions[idx],nnearest,zstart,zdelta,stepcovmax,radchangemin,stem);
+		int idx = findClosestIdx(foundstem,regions,true);
+		*stem += *regions[idx];
+		//nnearest = 60;
+		//float zdelta = 0.75;
+		//float zstart = 5;
+		//float stepcovmax = 0.05;
+		//float radchangemin = 0.9;
+		//correctStem(regions[idx],nnearest,zstart,zdelta,stepcovmax,radchangemin,stem);
 		ss.str("");
 		ss << id[0] << ".stem." << id[1] << ".pcd";
 		writer.write(ss.str(),*stem,true);

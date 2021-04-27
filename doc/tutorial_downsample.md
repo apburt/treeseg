@@ -2,7 +2,7 @@
 
 Downsampling the data is an optional step, but provides two potential benefits: i) some of the point cloud processing methods (e.g., Euclidean clustering) will provide more robust results, and ii) reduces computation. However, determining the appropriate level of downsampling is a complicated subject, requiring careful consideration (e.g., the downstream implications of downsampling, such as the impacts on above-ground biomass estimation), which is briefly discussed in the following subsection.
 
-treeseg implements two methods for downsampling, both employing octrees. The first, `downsample`, and the one used in this tutorial, replaces the points inside each occupied voxel (leaf-node), with a single aggregate point:  
+treeseg implements two methods for downsampling, both employing octrees. The first, and the one used in this tutorial, `downsample`, replaces the points inside each occupied voxel (leaf-node), with a single aggregate point:  
 
 ```
 downsample 0.04 NOU11.tile.*.pcd 

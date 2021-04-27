@@ -54,7 +54,7 @@ unzip '2015-11-10.001.riproject.part?.zip';
 
 ### Option 2: Preprocessed lidar data
 
-If the `rxp2pcd` executable could not been compiled (e.g., it was not possible to access and download the RIEGL RiVLIB headers and libraries), then the preprocessed data should be downloaded. It is also necessary to create a file containing the coordinates of plot boundaries (discussed further in the following section):
+If the `rxp2pcd` executable could not been compiled (e.g., it was not possible to access and download the RIEGL RiVLIB headers and libraries), then the preprocessed data should be downloaded. It is also necessary to create a file containing the coordinates of plot boundaries (this is discussed further in the following section):
 
 ```
 cd ./treeseg_tutorial/processing/;

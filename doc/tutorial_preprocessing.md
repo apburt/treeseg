@@ -15,15 +15,15 @@ Where 'mycloud' can be replaced with some meaningful identifier of the larger-ar
 
 ## Parsing additional point fields
 
-treeseg implements a custom point type, PointTreeseg, to provide the user with flexibility over the point fields. By default PointTreeseg = [pcl::PointXYZ](https://pointclouds.org/documentation/structpcl_1_1_point_x_y_z.html). However, the definition of PointTreeseg in [treeseg_pointtype.h](../include/treeseg_pointtype.h#L33) can be modified if the user wishes to include other fields (e.g., reflectance).  
+treeseg implements a custom point type, `PointTreeseg`, to provide the user with flexibility over the point fields. By default PointTreeseg = [pcl::PointXYZ](https://pointclouds.org/documentation/structpcl_1_1_point_x_y_z.html). However, the definition of [PointTreeseg](../include/treeseg_pointtype.h#L33) can be modified if the user wishes to include other fields (e.g., reflectance).  
 
-An example of how this can be implemented is provided by the preprocessor macro XYZRRDRS in [treeseg_pointtype.h](../include/treeseg_pointtype.h#L29). If this macro is defined as true (default = false) and treeseg recompiled, then the PointTreeseg point fields become: x (m), y (m), z (m), range (m), reflectance (dB), deviation (#), return number (#) and scan number (#). These additional fields will then be preserved through the various processing steps.
+An example of how this can be implemented is provided by the preprocessor macro [XYZRRDRS](../include/treeseg_pointtype.h#L29). If this macro is defined as true (default = false) and treeseg recompiled, then the `PointTreeseg` point fields become: x (m), y (m), z (m), range (m), reflectance (dB), deviation (#), return number (#) and scan number (#). These additional fields will then be preserved throughout the various subsequent processing steps.
 
 ## RXP to PCD conversion
 
 In this tutorial we only consider preprocessing lidar data stored in RIEGL's RXP data stream format, to the abovedescribed expected tiled PCD format. However, various open-source tools are available for converting lidar data in other formats (e.g., LAS).
 
-The raw lidar data downloaded during the previous step (i.e., [option 1](tutorial_overview.md#Data)) are preprocessed using the `rxp2pcd` executable. The overall x-y limits of the tiles are defined by the coordinates of a bounding box, which here, we want dictated by the plot boundaries, which can be approximated from the scan locations via the transformation matrices in `./treeseg_tutorial/data/matrix/` using `plotcoords`:
+The raw lidar data downloaded during the previous step (i.e., [option 1](tutorial_overview.md#Data)) are preprocessed using the `rxp2pcd` executable. The overall x-y limits of the larger-area point cloud are defined by the coordinates of a bounding box, which here, we want dictated by the plot boundaries, which can be approximated from the scan locations via the transformation matrices in `./treeseg_tutorial/data/matrix/` using `plotcoords`:
 
 ```
 cd ../processing/;

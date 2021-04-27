@@ -618,6 +618,12 @@ void cylinderDiagnostics(cylinder &cyl, int nnearest)
 bool sortCloudByX(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.x < p2.x;}
 bool sortCloudByY(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.y < p2.y;}
 bool sortCloudByZ(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.z < p2.z;}
+bool sortCloudByDescEuclidDist(const PointTreeseg &p1, const PointTreeseg &p2)
+{
+	if (p1.x != p2.x) return p1.x > p2.x;
+	else if (p1.y != p2.y) return p1.y > p2.y;
+	else return p1.z > p2.z;
+}
 #if XYZRRDRS == true
 bool sortCloudByRange(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.range < p2.range;}
 bool sortCloudByReflectance(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.reflectance < p2.reflectance;}
@@ -625,6 +631,12 @@ bool sortCloudByDeviation(const PointTreeseg &p1, const PointTreeseg &p2) {retur
 bool sortCloudByReturnNumber(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.return_number < p2.return_number;}
 bool sortCloudByScanNumber(const PointTreeseg &p1, const PointTreeseg &p2) {return p1.scan_number < p2.scan_number;}
 #endif
+
+bool equalPoint(const PointTreeseg &p1, const PointTreeseg &p2)
+{
+	if (p1.x == p2.x && p1.y == p2.y && p1.z == p2.z) return true;
+	return false;
+}
 
 bool sort2DFloatVectorByCol1(const std::vector<float> &v1, const std::vector<float> &v2) {return v1[1] < v2[1];}
 bool sort2DFloatVectorByCol2(const std::vector<float> &v1, const std::vector<float> &v2) {return v1[2] < v2[2];}
@@ -794,6 +806,13 @@ void catIntersectingClouds(std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &clou
 		}
 		else donesomething = false;
 	}
+}
+
+void removeDuplicatePoints(pcl::PointCloud<PointTreeseg>::Ptr &cloud)
+{
+	std::sort(cloud->points.begin(),cloud->points.end(),sortCloudByDescEuclidDist);
+	auto unique = std::unique(cloud->points.begin(),cloud->points.end(),equalPoint);
+	cloud->erase(unique,cloud->end());
 }
 
 //treeseg specific
