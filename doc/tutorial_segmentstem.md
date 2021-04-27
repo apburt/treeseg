@@ -30,7 +30,7 @@ Also output are intermediate diagnostic files. For example, the following visual
 pcl_viewer NOU11.c.ng.r.1.pcd
 ```
 
-<img src="/doc/images/stem_ngr.png" height="250">
+<img src="/doc/images/stem_ngr.png" height="500">
 
 ## Parameters
 
@@ -45,4 +45,4 @@ In addition to smoothness (described [here](tutorial_findstems.md#Parameters)), 
 
 Scenarios will arise where the outputs from `segmentstem` erroneously include neighbouring vegetation (e.g., `NOU.stem.0.pcd`). A potential approach to correcting this is to lower the value of smoothness (e.g., 3.5). However this can lead to errors of omission, which are more difficult to correct. At this point is is unnecessary to manually correct errors of commission, as this will be undertaken once the crown of each tree has been segmented in the final step.
 
-## [Next: Crown segmentation](tutorial_findstems.md)
+## [Next: Crown segmentation](tutorial_segmentcrown.md)
