@@ -16,6 +16,6 @@ pcl_viewer NOU11.slice.pcd
 
 Which will look something similar to:
 
-<img src="/doc/images/slice.png" width="750">
+<img src="/doc/images/getdtmslice.png" width="750">
 
 ## [Next: Identifying the stems](tutorial_findstems.md)

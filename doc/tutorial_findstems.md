@@ -24,7 +24,7 @@ pcl_viewer NOU11.cluster.*.pcd
 
 Which will look something similar to:
 
-<img src="/doc/images/slice_stems.png" width="750">
+<img src="/doc/images/findstems.png" width="750">
 
 Also output are intermediate files useful for determining the source of any errors. For example, the following visualises the slice after applying Euclidean clustering and region-based segmentation: 
 
@@ -32,7 +32,7 @@ Also output are intermediate files useful for determining the source of any erro
 pcl_viewer NOU11.intermediate.slice.clusters.regions.pcd
 ```
 
-<img src="/doc/images/slice_regions.png" width="750">
+<img src="/doc/images/findstems_regions.png" width="750">
 
 ## Parameters
 

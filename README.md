@@ -16,7 +16,7 @@ Extract individual trees from lidar point clouds
 
 ## Overview
 
-treeseg has been developed to near-automatically extract tree-level point clouds from high-density larger-area lidar point clouds acquired in forests. A formal, albeit somewhat outdated description of the methods can be found in our [paper](https://doi.org/10.1111/2041-210X.13121).
+treeseg has been developed to near-automatically segment individual tree point clouds from high-density larger-area lidar point clouds acquired in forests. A formal, albeit somewhat outdated description of the methods can be found in our [paper](https://doi.org/10.1111/2041-210X.13121).
 
 ## Installation
 
