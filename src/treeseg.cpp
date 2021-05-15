@@ -932,12 +932,40 @@ void removeFarRegions(float dmin, std::vector<pcl::PointCloud<PointTreeseg>::Ptr
 	}
 }
 
+void precalculateIntersections(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions, std::vector<std::vector<bool>> &intersections, float expansion)
+{
+	std::vector<Eigen::Vector4f> bbmin,bbmax;
+	for(int i=0;i<regions.size();i++)
+	{
+		Eigen::Vector4f min,max;
+		pcl::getMinMax3D(*regions[i],min,max);
+		min[0] -= expansion;
+		min[1] -= expansion;
+		min[2] -= expansion;
+		max[0] += expansion;
+		max[1] += expansion;
+		max[2] += expansion;
+		bbmin.push_back(min);
+		bbmax.push_back(max);
+	}
+	for(int i=0;i<regions.size();i++)
+	{
+		std::vector<bool> intersects;
+		for(int j=0;j<regions.size();j++)
+		{
+			bool intersect = intersectionTest3DBox(bbmin[i],bbmax[i],bbmin[j],bbmax[j]);
+			intersects.push_back(intersect);
+		}
+		intersections.push_back(intersects);
+	}
+}
+
 void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions, int cyclecount, int firstcount, float firstdist, int nnearest,  float seconddist, pcl::PointCloud<PointTreeseg>::Ptr &tree)
 {
 	std::vector<int> unallocated;
 	std::vector<int> allocated;
 	std::vector<int> previouslyallocated;
-	std::vector<int> newlyallocated;
+	std::vector<int> newlyallocated;	
 	std::vector<pcl::KdTreeFLANN<PointTreeseg>> kdtrees;
 	for(int i=0;i<regions.size();i++)
 	{
@@ -946,6 +974,9 @@ void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions, i
 		tree.setInputCloud(regions[i]);
 		kdtrees.push_back(tree);
 	}
+	std::vector<std::vector<bool>> intersections;
+	precalculateIntersections(regions,intersections,seconddist/2);
+	std::cout << "." << std::flush;
 	int idx = findPrincipalCloudIdx(regions);
 	allocated.push_back(unallocated[idx]);
 	previouslyallocated.push_back(allocated[0]);
@@ -960,13 +991,16 @@ void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions, i
 			for(int j=0;j<unallocated.size();j++)
 			{
 				float d = std::numeric_limits<int>::max();
-				if(regions[previouslyallocated[i]]->points.size() >= regions[unallocated[j]]->points.size())
+				if(intersections[previouslyallocated[i]][unallocated[j]] == true)
 				{
-					d = minDistBetweenClouds(regions[previouslyallocated[i]],regions[unallocated[j]],kdtrees[previouslyallocated[i]]);
-				}	
-				else
-				{
-					d = minDistBetweenClouds(regions[unallocated[j]],regions[previouslyallocated[i]],kdtrees[unallocated[j]]);
+					if(regions[previouslyallocated[i]]->points.size() >= regions[unallocated[j]]->points.size())
+					{
+						d = minDistBetweenClouds(regions[previouslyallocated[i]],regions[unallocated[j]],kdtrees[previouslyallocated[i]]);
+					}	
+					else
+					{
+						d = minDistBetweenClouds(regions[unallocated[j]],regions[previouslyallocated[i]],kdtrees[unallocated[j]]);
+					}
 				}
 				std::vector<float> tmp;
 				tmp.push_back(unallocated[j]);
@@ -980,7 +1014,7 @@ void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions, i
 				{
 					for(int j=0;j<dinfo.size();j++)
 					{
-						if(dinfo[j][1] < firstdist)
+						if(dinfo[j][1] <= firstdist)
 						{
 							int tmpidx = static_cast<int>(dinfo[j][0]);
 							newlyallocated.push_back(tmpidx);
@@ -994,7 +1028,7 @@ void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions, i
 						if(j == nnearest) break;
 						else
 						{
-							if(dinfo[j][1] < seconddist)
+							if(dinfo[j][1] <= seconddist)
 							{
 								int tmpidx = static_cast<int>(dinfo[j][0]);
 								newlyallocated.push_back(tmpidx);

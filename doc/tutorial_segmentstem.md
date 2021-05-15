@@ -30,7 +30,7 @@ Also output are intermediate diagnostic files. For example, the following visual
 pcl_viewer NOU11.c.ng.r.1.pcd
 ```
 
-<img src="/doc/images/segmentstem_region.png" height="600">
+<img src="/doc/images/segmentstem_regions.png" height="600">
 
 ## Parameters
 

@@ -9,8 +9,7 @@ int main(int argc, char **argv)
 	pcl::PCDWriter writer;
 	std::stringstream ss;
 	float smoothness = std::stof(args[0]);
-	bool quick = std::stoi(args[1]); 
-	for(int i=2;i<args.size();i++)
+	for(int i=1;i<args.size();i++)
 	{
 		std::cout << "----------: " << args[i] << std::endl;
 		std::cout << "Reading volume cloud: " << std::flush;
@@ -38,44 +37,13 @@ int main(int argc, char **argv)
 		writeClouds(regions,ss.str(),false);
 		std::cout << ss.str() << std::endl;
 		//
-		std::cout << "Euclidean clustering: " << std::flush;		
-		for(int i=0;i<regions.size();i++) *volume += *regions[i];
-		regions.clear();
-		std::vector<pcl::PointCloud<PointTreeseg>::Ptr> clusters;
-		euclideanClustering(volume,1.0,1,clusters);
-		volume->clear();
-		int idx = findPrincipalCloudIdx(clusters);
-		*volume = *clusters[idx];
+		std::cout << "Building tree: " << std::flush;
+		pcl::PointCloud<PointTreeseg>::Ptr tree(new pcl::PointCloud<PointTreeseg>);
+		buildTree(regions,15,1,0.2,3,1.0,tree);
 		ss.str("");
-		ss << id[0] << ".rg.o.ec." << id[1] << ".pcd";
-		writeClouds(clusters,ss.str(),false);
-		std::cout << ss.str() << std::endl; 
-		//	
-		if(quick == true)
-		{
-			ss.str("");
-			ss << id[0] << "_" << id[1] << ".pcd";
-			writer.write(ss.str(),*volume,true);
-			std::cout << "Tree: " << ss.str() << std::endl;
-		}
-		else
-		{
-			std::cout << "Rerunning region-based segmentation: " << std::flush; 
-			estimateNormals(volume,50,normals);
-			regionSegmentation(volume,normals,250,3,std::numeric_limits<int>::max(),smoothness,1,regions);
-			ss.str("");
-			ss << id[0] << ".rg.o.ec.rg." << id[1] << ".pcd";
-			writeClouds(regions,ss.str(),false);
-			std::cout << ss.str() << std::endl;
-			//
-			std::cout << "Building tree: " << std::flush;
-			pcl::PointCloud<PointTreeseg>::Ptr tree(new pcl::PointCloud<PointTreeseg>);
-			buildTree(regions,20,1,0.2,5,1.0,tree);
-			ss.str("");
-			ss << id[0] << "_" << id[1] << ".pcd";
-			writer.write(ss.str(),*tree,true);
-			std::cout << " " << ss.str() << std::endl;
-		}
+		ss << id[0] << "_" << id[1] << ".pcd";
+		writer.write(ss.str(),*tree,true);
+		std::cout << " " << ss.str() << std::endl;
 	}
 	return 0;
 }

@@ -157,5 +157,6 @@ void removeDuplicatePoints(pcl::PointCloud<PointTreeseg>::Ptr &cloud);
 std::vector<std::vector<float>> getDtmAndSlice(const pcl::PointCloud<PointTreeseg>::Ptr &plot, float resolution, float percentile, float zmin, float zmax, pcl::PointCloud<PointTreeseg>::Ptr &slice);
 void correctStem(const pcl::PointCloud<PointTreeseg>::Ptr &stem, float nnearest, float zstart, float zstep, float stepcovmax, float radchangemin, pcl::PointCloud<PointTreeseg>::Ptr &corrected);
 void removeFarRegions(float dmin, std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions);
+void precalculateIntersections(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions, std::vector<std::vector<bool>> &intersections, float expansion);
 void buildTree(const std::vector<pcl::PointCloud<PointTreeseg>::Ptr> &regions, int cyclecount, int firstcount, float firstdistance, int nnearest, float seconddist, pcl::PointCloud<PointTreeseg>::Ptr &tree);
 treeparams getTreeParams(const pcl::PointCloud<PointTreeseg>::Ptr &cloud, int nnearest, float zstep, float diffmax);

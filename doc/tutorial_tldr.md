@@ -27,5 +27,5 @@ segmentstem 4 ../clusters/NOU11.cluster.?.pcd ../NOU11.tile.downsample.*.pcd;
 cd ../volumes/;
 getcrownvolume 0.66 ../stems/NOU11.stem.*.pcd ../NOU11.tile.downsample.*.pcd;
 cd ../trees/;
-segmentcrown 4 0 ../volumes/NOU11.volume.*.pcd;
+segmentcrown 4 ../volumes/NOU11.volume.*.pcd;
 ```
