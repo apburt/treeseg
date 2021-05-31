@@ -38,7 +38,7 @@ git clone https://github.com/apburt/treeseg.git;
 mkdir ./treeseg/build; cd ./treeseg/build; cmake ..; make;
 ```
 
-Optionally, for users with RIEGL V-Line scan data, treeseg includes the executable `rxp2pcd`, to convert and preprocess data in RXP data stream format, to binary PCD format. This executable will be automatically built if the directories `./treeseg/include/reigl/` and `./treeseg/lib/riegl/` are populated with the RIEGL RiVLIB headers and libraries (as appropriate for the user's particular CPU architecture and gcc version), which can be downloaded from the Members Area of the RIEGL website (e.g., rivlib-2_5_10-x86_64-linux-gcc9.zip). 
+Optionally, for users with RIEGL V-Line scan data, treeseg includes the executable `rxp2pcd`, to convert and preprocess data in RXP data stream format, to binary PCD format. This executable will automatically be built if the directories `./treeseg/include/reigl/` and `./treeseg/lib/riegl/` are populated with the RIEGL RiVLIB headers and libraries (as appropriate for the user's particular CPU architecture and gcc version), which can be downloaded from the Members Area of the RIEGL website (e.g., rivlib-2_5_10-x86_64-linux-gcc9.zip). 
 
 Finally, the environment variable `PATH` can then be updated to include the directory containing the built treeseg executables, either temporarily, by calling the following, or permanently, by inserting it at the top of `~/.bashrc`:
 

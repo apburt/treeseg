@@ -6,7 +6,7 @@ The first principal step of treeseg is to identify the individual trees in the l
 getdtmslice 2 2.5 3 6 NOU11.tile.downsample.*.pcd > NOU11.dtm.dat
 ```
 
-Where the inputs are: 1) the resolution of the DTM (m), 2) the percentile of the z-coordinates inside each DTM grid which is considered to constitute the ground (this is used, rather than the absolute minimum, to provide more robust results in noisy point clouds), 3) the minimum height of the slice above-ground (m), 4) the maximum height of the slice above-ground (m), and 5) the downsampled tiles constituting the larger-area point cloud.
+Where the inputs are: 1) the resolution of the DTM (m), 2) the percentile of the z-coordinates of the points inside each DTM grid which is considered to constitute the ground (this is used, rather than the absolute minimum, to provide more robust results in noisy point clouds), 3) the minimum height of the slice above-ground (m), 4) the maximum height of the slice above-ground (m), and 5) the downsampled tiles constituting the larger-area point cloud.
 
 The resulting slice can be viewed using:
 

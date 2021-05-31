@@ -4,7 +4,7 @@ Individual tree stems are then identified in this slice across the larger-area p
 
 1. Euclidean clustering: the slice is organised into individual clusters, based on the spatial distances between points.  
 2. Region-based segmentation: these clusters are further reduced to regions, based on the properties of their underlying surfaces (themselves inferred from point normals).
-3. Shape fitting: RANSAC methods are used to fit cylinders to each region, and fit diagnostics are used determine the likelihood of the underlying surface being a stem.
+3. Shape fitting: RANSAC methods are used to fit cylinders to each region, and fit diagnostics are used to determine the likelihood of the underlying surface being a stem.
 4. Principal component analysis: the angle between the principal components of each region and the ground are calculated, with regions broadly perpendicular to the ground deemed to be stems.
 
 These steps are implemented in the `findstems` executable, which can be called:

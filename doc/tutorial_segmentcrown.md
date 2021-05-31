@@ -32,11 +32,11 @@ The connectivity testing is implemented in the [buildtree](../src/treeseg.cpp#L9
 buildTree(regions,20,1,0.2,5,1.0,tree);
 ```
 
-Where the input parameters are: i) the vector of point clouds derived from the region-based segmentation, ii) cyclecount (integer), iii) firstcount (integer), iv) firstdist (m), v) nnearest (integer), vi) seconddist (m), and vii) the resulting tree-level point cloud. That is, first, the region representing the stem is designated the seed. For `firstcount` iteration(s), regions within the distance `firstdist` to the seed(s) are added to the tree and designated the new seeds. For the remaining `cyclecount` iterations, the `nnearest` regions closest to each seed and within the distance `seconddist` are added to the tree and designated the new seeds. These parameters may require further experimentation when applied to other lidar datasets. For example, for very high-quality lidar data, it might be possible to significantly reduce `cyclecount`. This will substantially reduce compute time.
+Where the input parameters are: i) the vector of point clouds derived from the region-based segmentation, ii) cyclecount (integer), iii) firstcount (integer), iv) firstdist (m), v) nnearest (integer), vi) seconddist (m), and vii) the resulting tree-level point cloud. That is, first, the region representing the stem is designated the seed. For `firstcount` iteration(s), regions within the distance `firstdist` to the seed(s) are added to the tree and designated the new seeds. For the remaining `cyclecount` iterations, the `nnearest` regions closest to each seed and within the distance `seconddist` are added to the tree and designated the new seeds. These parameters may require further experimentation when applied to other lidar datasets. For example, for very high-quality lidar data, or for more sparsely populated forest scenes, it might be possible to significantly reduce `cyclecount`. This will substantially reduce compute time.
 
 In addition to this function, other important parameters have been hard-coded into `segmentcrown`:
 
-1. Region-based segmentation: [nnearest](../src/segmentcrown.cpp#L31), [nneighbours](../src/segmentcrown.cpp#L32), [nmin](../src/segmentcrown.cpp#L32), [nmax](../src/segmentcrown.cpp#L32) and [curvature](../src/segmentcrown.cpp#L32).
+1. Region-based segmentation: [nnearest](../src/segmentcrown.cpp#L24), [nneighbours](../src/segmentcrown.cpp#L25), [nmin](../src/segmentcrown.cpp#L25), [nmax](../src/segmentcrown.cpp#L25) and [curvature](../src/segmentcrown.cpp#L25).
 
 # Errors of commission
 
