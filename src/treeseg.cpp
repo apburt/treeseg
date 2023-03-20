@@ -39,6 +39,7 @@
 #include <pcl/segmentation/region_growing.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/octree/octree.h>
+#include <boost/algorithm/string.hpp>
 
 //File IO
 
